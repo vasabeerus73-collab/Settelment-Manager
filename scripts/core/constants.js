@@ -25,5 +25,6 @@ export const BUILDING_ACCESS = {
 export const PROJECT_STATUS = {
   available: "Доступен",
   active: "В работе",
-  complete: "Завершён"
+  complete: "Завершён",
+  failed: "Провален"
 };

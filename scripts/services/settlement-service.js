@@ -399,6 +399,8 @@ export class SettlementService {
       requester: String(data.requester ?? "Жители").trim() || "Жители",
       description: String(data.description ?? "").trim(),
       reward: String(data.reward ?? "").trim(),
+      moraleReward: toCount(data.moraleReward),
+      moralePenalty: toCount(data.moralePenalty),
       status: "available"
     });
     await setState(state);
@@ -411,11 +413,25 @@ export class SettlementService {
     const state = getState();
     const request = state.requests.find((entry) => entry.id === id);
     if (!request) return false;
+    if ((status === "complete" || status === "failed") && request.status !== "accepted") {
+      ui.notifications.warn("Сначала просьба должна быть принята.");
+      return false;
+    }
     request.status = status;
     if (status === "complete") {
+      const moraleReward = toCount(request.moraleReward);
+      state.morale = Math.min(100, toCount(state.morale) + moraleReward);
       pushChronicle(state, {
         title: `Выполнена просьба: ${request.title}`,
-        text: request.requester ? `Проситель: ${request.requester}.` : "",
+        text: `${request.requester ? `Проситель: ${request.requester}. ` : ""}Мораль: +${moraleReward}.`.trim(),
+        type: "request"
+      });
+    } else if (status === "failed") {
+      const moralePenalty = toCount(request.moralePenalty);
+      state.morale = Math.max(0, toCount(state.morale) - moralePenalty);
+      pushChronicle(state, {
+        title: `Провалена просьба: ${request.title}`,
+        text: `${request.requester ? `Проситель: ${request.requester}. ` : ""}Мораль: -${moralePenalty}.`.trim(),
         type: "request"
       });
     }
@@ -466,6 +482,7 @@ export class SettlementService {
       title,
       description: String(data.description ?? "").trim(),
       reward: String(data.reward ?? "").trim(),
+      levelReward: toCount(data.levelReward),
       status: "available",
       requirements
     });
@@ -507,8 +524,37 @@ export class SettlementService {
     const project = state.projects.find((entry) => entry.id === id);
     if (!project) return false;
     if (project.status === "complete") return true;
+    if (project.status !== "active") {
+      ui.notifications.warn("Сначала проект должен быть взят в работу.");
+      return false;
+    }
     project.status = "complete";
-    pushChronicle(state, { title: `Завершён проект: ${project.title}`, text: project.reward ?? "", type: "project" });
+    const levelReward = toCount(project.levelReward);
+    state.level = Math.max(1, toCount(state.level, 1) + levelReward);
+    pushChronicle(state, {
+      title: `Завершён проект: ${project.title}`,
+      text: `${project.reward ?? ""}${levelReward ? ` Уровень поселения: +${levelReward}.` : ""}`.trim(),
+      type: "project"
+    });
+    await setState(state);
+    return true;
+  }
+
+  async failProject(id) {
+    if (!requireGM()) return false;
+    const state = getState();
+    const project = state.projects.find((entry) => entry.id === id);
+    if (!project) return false;
+    if (project.status !== "active") {
+      ui.notifications.warn("Провалить можно только активный проект.");
+      return false;
+    }
+    project.status = "failed";
+    pushChronicle(state, {
+      title: `Провален проект: ${project.title}`,
+      text: "Уровень поселения не изменился.",
+      type: "project"
+    });
     await setState(state);
     return true;
   }

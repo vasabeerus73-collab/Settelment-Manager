@@ -67,6 +67,7 @@ export const SettlementAPI = {
   addProject: (data) => settlementService.addProject(data),
   startProject: (id) => settlementService.startProject(id),
   completeProject: (id) => settlementService.completeProject(id),
+  failProject: (id) => settlementService.failProject(id),
   deleteProject: (id) => settlementService.deleteProject(id),
   addChronicleEntry: (data) => settlementService.addChronicleEntry(data),
   reset: () => settlementService.reset(),

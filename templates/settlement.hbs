@@ -301,6 +301,10 @@
                     <dt>Награда / эффект</dt>
                     <dd>{{reward}}</dd>
                   </div>
+                  <div>
+                    <dt>Мораль</dt>
+                    <dd>Выполнение: +{{moraleReward}} · Провал: −{{moralePenalty}}</dd>
+                  </div>
                 </dl>
 
                 <footer class="sm-notice-actions">
@@ -357,7 +361,7 @@
 
           <div class="sm-notice-grid">
             {{#each projects}}
-              <article class="sm-notice-card sm-notice-project {{#if isComplete}}is-complete{{/if}}">
+              <article class="sm-notice-card sm-notice-project {{#if isComplete}}is-complete{{/if}} {{#if isFailed}}is-failed{{/if}}">
                 <span class="sm-notice-pin"><i class="fa-solid fa-thumbtack"></i></span>
 
                 <div class="sm-notice-topline">
@@ -384,6 +388,7 @@
                 <div class="sm-notice-result">
                   <span class="sm-notice-label">Результат</span>
                   <strong>{{reward}}</strong>
+                  <span><i class="fa-solid fa-arrow-up"></i> Уровень поселения: +{{levelReward}}</span>
                 </div>
 
                 {{#if isAvailable}}{{#unless canStart}}
@@ -400,6 +405,9 @@
                     {{#if isActive}}
                       <button type="button" class="sm-primary" data-action="completeProject" data-project-id="{{id}}">
                         <i class="fa-solid fa-flag-checkered"></i> Завершить
+                      </button>
+                      <button type="button" class="sm-danger-button" data-action="failProject" data-project-id="{{id}}" title="Провалить проект без снижения уровня">
+                        <i class="fa-solid fa-xmark"></i> Провалить
                       </button>
                     {{/if}}
                     <button type="button" class="sm-ghost-button" data-action="deleteProject" data-project-id="{{id}}" title="Удалить">
@@ -488,7 +496,9 @@
               <label><span>Название</span><input type="text" name="newRequest.title" placeholder="Лекарство для Миры" /></label>
               <label><span>Кто просит</span><input type="text" name="newRequest.requester" placeholder="Лекарь Тесса" /></label>
               <label class="is-wide"><span>Описание</span><textarea name="newRequest.description" rows="3"></textarea></label>
-              <label class="is-wide"><span>Награда / эффект</span><input type="text" name="newRequest.reward" placeholder="+3 морали, новый рецепт..." /></label>
+              <label class="is-wide"><span>Награда / эффект</span><input type="text" name="newRequest.reward" placeholder="Благодарность жителей, новый рецепт..." /></label>
+              <label><span>Мораль за выполнение</span><input type="number" name="newRequest.moraleReward" min="0" max="100" step="1" value="0" /></label>
+              <label><span>Мораль при провале</span><input type="number" name="newRequest.moralePenalty" min="0" max="100" step="1" value="0" /></label>
             </div>
             <button type="button" class="sm-primary" data-action="addRequest"><i class="fa-solid fa-plus"></i> Добавить просьбу</button>
           </details>
@@ -497,6 +507,7 @@
             <summary><i class="fa-solid fa-diagram-project"></i> Создать проект</summary>
             <div class="sm-ui2-form-table">
               <label><span>Название</span><input type="text" name="newProject.title" placeholder="Восстановить мост" /></label>
+              <label><span>Уровней за выполнение</span><input type="number" name="newProject.levelReward" min="0" step="1" value="1" /></label>
               <label class="is-wide"><span>Описание</span><textarea name="newProject.description" rows="3"></textarea></label>
             </div>
             <div class="sm-ui2-table sm-ui2-mini-table">
