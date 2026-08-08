@@ -197,9 +197,15 @@
                         <i class="{{accessIcon}}"></i><span>{{accessLabel}}</span>
                       </span>
                     {{else}}
-                      <span class="sm-badge sm-badge-compact is-access-unlocked" title="Доступно">
-                        <i class="fa-solid fa-lock-open"></i><span>Доступно</span>
-                      </span>
+                      {{#if hasInsufficientResources}}
+                        <span class="sm-badge sm-badge-compact is-resources-missing" title="Недостаточно ресурсов для строительства">
+                          <i class="fa-solid fa-triangle-exclamation"></i><span>Не хватает ресурсов</span>
+                        </span>
+                      {{else}}
+                        <span class="sm-badge sm-badge-compact is-access-unlocked" title="Доступно">
+                          <i class="fa-solid fa-lock-open"></i><span>Доступно</span>
+                        </span>
+                      {{/if}}
                     {{/if}}
                   </span>
                   <span class="sm-building-status-cell">

@@ -63,8 +63,45 @@ Settlement.factoryReset();                             // сброс состо�
 npm run check
 ```
 
+## Установка
+
+### Через Foundry VTT
+
+1. Откройте экран **Add-on Modules** и нажмите **Install Module**.
+2. Вставьте ссылку на манифест:
+
+   ```text
+   https://raw.githubusercontent.com/vasabeerus73-collab/Settelment-Manager/main/module.json
+   ```
+
+3. Нажмите **Install**, затем включите Settlement Manager в настройках мира.
+
+### Вручную
+
+1. Скачайте `settlement-manager.zip` из нужного GitHub Release.
+2. Распакуйте содержимое архива в каталог `Data/modules/settlement-manager`.
+3. Проверьте, что манифест находится по пути
+   `Data/modules/settlement-manager/module.json`, без дополнительной вложенной папки.
+4. Перезапустите Foundry VTT и включите модуль в настройках мира.
+
+Архив исходников, который GitHub предлагает через **Download ZIP**, для прямой
+установки не подходит: GitHub добавляет к имени корневой папки суффикс ветки
+вроде `-main`. Используйте ZIP-файл из раздела Releases.
+
+### Локальная разработка
+
+Чтобы Foundry сразу видел изменения в рабочей копии, каталог
+`Data/modules/settlement-manager` можно сделать junction-ссылкой на папку проекта.
+После изменения JavaScript или шаблонов выполните жёсткую перезагрузку клиента
+Foundry (`Ctrl+F5`).
+
 Список изменений — в [CHANGELOG.md](CHANGELOG.md), устройство и инварианты —
 в [ARCHITECTURE.md](ARCHITECTURE.md).
+
+## Лицензия
+
+Проект распространяется на условиях GNU General Public License v3.0.
+Полный текст приведён в [LICENSE](LICENSE).
 
 
 ### Resource intake

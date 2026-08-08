@@ -1,0 +1,88 @@
+name: Validate and release
+
+on:
+  push:
+    branches:
+      - main
+    tags:
+      - "v*"
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  validate:
+    name: Validate module
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+
+      - name: Run project checks
+        run: npm run check
+
+      - name: Verify tag matches module version
+        if: startsWith(github.ref, 'refs/tags/')
+        run: |
+          MODULE_VERSION=$(node -p "require('./module.json').version")
+          test "$GITHUB_REF_NAME" = "v$MODULE_VERSION"
+
+  package:
+    name: Build module archive
+    needs: validate
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+
+      - name: Build Foundry module ZIP
+        run: |
+          zip -r settlement-manager.zip \
+            module.json \
+            scripts \
+            styles \
+            templates \
+            data \
+            lang \
+            README.md \
+            CHANGELOG.md \
+            LICENSE
+
+      - name: Upload module archive
+        uses: actions/upload-artifact@v4
+        with:
+          name: settlement-manager
+          path: settlement-manager.zip
+          if-no-files-found: error
+
+  release:
+    name: Publish GitHub Release
+    if: startsWith(github.ref, 'refs/tags/')
+    needs: package
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - name: Download module archive
+        uses: actions/download-artifact@v4
+        with:
+          name: settlement-manager
+
+      - name: Create or update release
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          if gh release view "$GITHUB_REF_NAME"; then
+            gh release upload "$GITHUB_REF_NAME" settlement-manager.zip --clobber
+          else
+            gh release create "$GITHUB_REF_NAME" settlement-manager.zip \
+              --title "Settlement Manager $GITHUB_REF_NAME" \
+              --generate-notes
+          fi

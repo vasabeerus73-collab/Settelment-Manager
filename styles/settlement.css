@@ -223,6 +223,11 @@
   border: 1px solid rgba(118,201,107,.26);
   background: rgba(118,201,107,.10);
 }
+.sm-badge.is-resources-missing {
+  color: var(--sm-danger);
+  border: 1px solid rgba(231,76,60,.32);
+  background: rgba(231,76,60,.10);
+}
 .sm-blueprint-control {
   display: grid;
   grid-template-columns: minmax(0, 1fr) minmax(210px, .75fr);

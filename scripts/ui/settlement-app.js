@@ -83,6 +83,7 @@ function buildingRows(state, editable = false) {
       accessHidden: rawAccess === "hidden",
       isAccessLocked: effectiveAccess !== "unlocked" && currentLevel === 0,
       showAccessBadge: effectiveAccess !== "unlocked" && currentLevel === 0,
+      hasInsufficientResources: effectiveAccess === "unlocked" && costs.some((cost) => !cost.enough),
       currentLevel,
       nextLevelNumber: nextLevel?.level ?? null,
       targetLevel,
