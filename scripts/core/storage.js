@@ -30,6 +30,18 @@ function mergeState(saved = {}) {
   merged.blueprints = Array.isArray(merged.blueprints) ? [...new Set(merged.blueprints.map(String))] : [];
   merged.requests = Array.isArray(merged.requests) ? merged.requests : clone(DEFAULT_STATE?.requests ?? []);
   merged.projects = Array.isArray(merged.projects) ? merged.projects : clone(DEFAULT_STATE?.projects ?? []);
+  for (const request of merged.requests) {
+    if (request.moraleReward === undefined) {
+      const legacyReward = String(request.reward ?? "").match(/\+?(\d+)\s*морал/iu);
+      request.moraleReward = legacyReward ? toCount(legacyReward[1]) : 0;
+    } else {
+      request.moraleReward = toCount(request.moraleReward);
+    }
+    request.moralePenalty = toCount(request.moralePenalty);
+  }
+  for (const project of merged.projects) {
+    project.levelReward = project.levelReward === undefined ? 1 : toCount(project.levelReward);
+  }
   merged.chronicle = Array.isArray(merged.chronicle) ? merged.chronicle : [];
   if (merged.chronicle.length > MAX_CHRONICLE_ENTRIES) merged.chronicle.length = MAX_CHRONICLE_ENTRIES;
   if (merged.description === undefined) merged.description = DEFAULT_STATE?.description ?? "";

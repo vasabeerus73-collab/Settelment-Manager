@@ -1,18 +1,4 @@
 <div class="settlement-manager">
-  <header class="sm-hero">
-    <div class="sm-crest"><i class="fa-solid fa-tree-city"></i></div>
-    <div class="sm-hero-copy">
-      <div class="sm-title-row"><h2>{{state.name}}</h2></div>
-      <div class="sm-subtitle">Settlement Manager • v{{moduleVersion}}</div>
-    </div>
-    <div class="sm-top-stats">
-      <div class="sm-top-stat"><span>Уровень</span><strong><i class="fa-solid fa-shield-halved"></i> {{state.level}}</strong></div>
-      <div class="sm-top-stat"><span>Население</span><strong><i class="fa-solid fa-user-group"></i> {{state.population}} / {{state.capacity}}</strong></div>
-      <div class="sm-top-stat"><span>Мораль</span><strong><i class="fa-solid fa-face-smile"></i> {{state.morale}} / 100</strong></div>
-      <div class="sm-top-stat"><span>Защита</span><strong><i class="fa-solid fa-shield"></i> {{state.defense}}</strong></div>
-    </div>
-  </header>
-
   <div class="sm-ui2-shell">
     <aside class="sm-ui2-sidebar">
       <div class="sm-ui2-sidebar-title">
@@ -48,12 +34,12 @@
             <div class="sm-health-card tone-{{dashboard.populationTone}}">
               <span><i class="fa-solid fa-user-group"></i> Население</span>
               <strong>{{state.population}} / {{state.capacity}}</strong>
-              <div class="sm-progress"><span style="width: {{populationPercent}}%"></span></div>
+              <div class="sm-progress sm-progress-pop"><span style="width: {{populationPercent}}%"></span></div>
             </div>
             <div class="sm-health-card tone-{{dashboard.moraleTone}}">
               <span><i class="fa-solid fa-face-smile"></i> Мораль</span>
               <strong>{{state.morale}} / 100</strong>
-              <div class="sm-progress"><span style="width: {{moralePercent}}%"></span></div>
+              <div class="sm-progress sm-progress-morale"><span style="width: {{moralePercent}}%"></span></div>
             </div>
             <div class="sm-health-card">
               <span><i class="fa-solid fa-shield"></i> Защита</span>
@@ -104,7 +90,7 @@
                 </div>
                 <span>{{activeConstruction.daysRemaining}} дн.</span>
               </div>
-              <div class="sm-progress"><span style="width: {{activeConstruction.progressPercent}}%"></span></div>
+              <div class="sm-progress sm-progress-build"><span style="width: {{activeConstruction.progressPercent}}%"></span></div>
             {{else}}
               <div class="sm-empty-state sm-empty-compact"><i class="fa-solid fa-circle-check"></i><span>Строительная бригада свободна</span></div>
             {{/if}}
@@ -315,6 +301,10 @@
                     <dt>Награда / эффект</dt>
                     <dd>{{reward}}</dd>
                   </div>
+                  <div>
+                    <dt>Мораль</dt>
+                    <dd>Выполнение: +{{moraleReward}} · Провал: −{{moralePenalty}}</dd>
+                  </div>
                 </dl>
 
                 <footer class="sm-notice-actions">
@@ -336,7 +326,13 @@
                       <i class="fa-solid fa-trash"></i>
                     </button>
                   {{else}}
-                    <span class="sm-hint">Только ГМ изменяет состояние просьбы.</span>
+                    {{#if isAvailable}}
+                      <button type="button" data-action="requestStatus" data-request-id="{{id}}" data-status="accepted">
+                        <i class="fa-solid fa-hand"></i> Принять
+                      </button>
+                    {{else}}
+                      <span class="sm-hint">{{statusLabel}}</span>
+                    {{/if}}
                   {{/if}}
                 </footer>
               </article>
@@ -365,7 +361,7 @@
 
           <div class="sm-notice-grid">
             {{#each projects}}
-              <article class="sm-notice-card sm-notice-project {{#if isComplete}}is-complete{{/if}}">
+              <article class="sm-notice-card sm-notice-project {{#if isComplete}}is-complete{{/if}} {{#if isFailed}}is-failed{{/if}}">
                 <span class="sm-notice-pin"><i class="fa-solid fa-thumbtack"></i></span>
 
                 <div class="sm-notice-topline">
@@ -392,13 +388,12 @@
                 <div class="sm-notice-result">
                   <span class="sm-notice-label">Результат</span>
                   <strong>{{reward}}</strong>
+                  <span><i class="fa-solid fa-arrow-up"></i> Уровень поселения: +{{levelReward}}</span>
                 </div>
 
-                {{#if ../editable}}
-                  {{#if isAvailable}}{{#unless canStart}}
-                    <div class="sm-notice-warning"><i class="fa-solid fa-triangle-exclamation"></i> {{reason}}</div>
-                  {{/unless}}{{/if}}
-                {{/if}}
+                {{#if isAvailable}}{{#unless canStart}}
+                  <div class="sm-notice-warning"><i class="fa-solid fa-triangle-exclamation"></i> {{reason}}</div>
+                {{/unless}}{{/if}}
 
                 <footer class="sm-notice-actions">
                   {{#if ../editable}}
@@ -411,12 +406,21 @@
                       <button type="button" class="sm-primary" data-action="completeProject" data-project-id="{{id}}">
                         <i class="fa-solid fa-flag-checkered"></i> Завершить
                       </button>
+                      <button type="button" class="sm-danger-button" data-action="failProject" data-project-id="{{id}}" title="Провалить проект без снижения уровня">
+                        <i class="fa-solid fa-xmark"></i> Провалить
+                      </button>
                     {{/if}}
                     <button type="button" class="sm-ghost-button" data-action="deleteProject" data-project-id="{{id}}" title="Удалить">
                       <i class="fa-solid fa-trash"></i>
                     </button>
                   {{else}}
-                    <span class="sm-hint">Проектами управляет ГМ.</span>
+                    {{#if isAvailable}}
+                      <button type="button" class="sm-primary" data-action="startProject" data-project-id="{{id}}" {{#unless canStart}}disabled{{/unless}}>
+                        <i class="fa-solid fa-handshake"></i> Взять проект
+                      </button>
+                    {{else}}
+                      <span class="sm-hint">{{statusLabel}}</span>
+                    {{/if}}
                   {{/if}}
                 </footer>
               </article>
@@ -492,7 +496,9 @@
               <label><span>Название</span><input type="text" name="newRequest.title" placeholder="Лекарство для Миры" /></label>
               <label><span>Кто просит</span><input type="text" name="newRequest.requester" placeholder="Лекарь Тесса" /></label>
               <label class="is-wide"><span>Описание</span><textarea name="newRequest.description" rows="3"></textarea></label>
-              <label class="is-wide"><span>Награда / эффект</span><input type="text" name="newRequest.reward" placeholder="+3 морали, новый рецепт..." /></label>
+              <label class="is-wide"><span>Награда / эффект</span><input type="text" name="newRequest.reward" placeholder="Благодарность жителей, новый рецепт..." /></label>
+              <label><span>Мораль за выполнение</span><input type="number" name="newRequest.moraleReward" min="0" max="100" step="1" value="0" /></label>
+              <label><span>Мораль при провале</span><input type="number" name="newRequest.moralePenalty" min="0" max="100" step="1" value="0" /></label>
             </div>
             <button type="button" class="sm-primary" data-action="addRequest"><i class="fa-solid fa-plus"></i> Добавить просьбу</button>
           </details>
@@ -501,6 +507,7 @@
             <summary><i class="fa-solid fa-diagram-project"></i> Создать проект</summary>
             <div class="sm-ui2-form-table">
               <label><span>Название</span><input type="text" name="newProject.title" placeholder="Восстановить мост" /></label>
+              <label><span>Уровней за выполнение</span><input type="number" name="newProject.levelReward" min="0" step="1" value="1" /></label>
               <label class="is-wide"><span>Описание</span><textarea name="newProject.description" rows="3"></textarea></label>
             </div>
             <div class="sm-ui2-table sm-ui2-mini-table">

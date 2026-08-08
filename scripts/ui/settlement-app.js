@@ -8,7 +8,7 @@ import {
   SECONDS_PER_DAY
 } from "../core/constants.js";
 import { settlementService, normalizeBuildingState } from "../services/settlement-service.js";
-import { requestConstruction } from "../integrations/socket.js";
+import { requestConstruction, requestPlayerAction } from "../integrations/socket.js";
 import { applyCustomPacks, getContentSnapshot } from "../core/content-registry.js";
 import { getPacks, resetSettlementState, setPacks, setState } from "../core/storage.js";
 import { makeSlug, uniqueId } from "../utils/ids.js";
@@ -132,6 +132,8 @@ function buildingCategoryKey(category) {
 function requestRows(state) {
   return (state.requests ?? []).map((entry) => ({
     ...entry,
+    moraleReward: toCount(entry.moraleReward),
+    moralePenalty: toCount(entry.moralePenalty),
     statusLabel: REQUEST_STATUS[entry.status] ?? entry.status,
     isAvailable: entry.status === "available",
     isAccepted: entry.status === "accepted",
@@ -163,6 +165,8 @@ function projectRows(state) {
       isAvailable: entry.status === "available",
       isActive: entry.status === "active",
       isComplete: entry.status === "complete",
+      isFailed: entry.status === "failed",
+      levelReward: toCount(entry.levelReward),
       canStart: check.ok,
       reason: check.reason
     };
@@ -219,6 +223,7 @@ export class SettlementApplication extends HandlebarsApplicationMixin(Applicatio
       addRequest: SettlementApplication.onAddRequest,
       startProject: SettlementApplication.onStartProject,
       completeProject: SettlementApplication.onCompleteProject,
+      failProject: SettlementApplication.onFailProject,
       deleteProject: SettlementApplication.onDeleteProject,
       addProject: SettlementApplication.onAddProject,
       addChronicle: SettlementApplication.onAddChronicle,
@@ -513,7 +518,11 @@ export class SettlementApplication extends HandlebarsApplicationMixin(Applicatio
   /* --------------------------- Просьбы и проекты ---------------------------- */
 
   static async onRequestStatus(event, target) {
-    await settlementService.setRequestStatus(target.dataset.requestId, target.dataset.status);
+    if (target.dataset.status === "accepted") {
+      await requestPlayerAction("accept-request", target.dataset.requestId);
+    } else {
+      await settlementService.setRequestStatus(target.dataset.requestId, target.dataset.status);
+    }
     await this.render({ force: true });
   }
 
@@ -550,19 +559,26 @@ export class SettlementApplication extends HandlebarsApplicationMixin(Applicatio
       title: root.querySelector('[name="newRequest.title"]')?.value,
       requester: root.querySelector('[name="newRequest.requester"]')?.value,
       description: root.querySelector('[name="newRequest.description"]')?.value,
-      reward: root.querySelector('[name="newRequest.reward"]')?.value
+      reward: root.querySelector('[name="newRequest.reward"]')?.value,
+      moraleReward: root.querySelector('[name="newRequest.moraleReward"]')?.value,
+      moralePenalty: root.querySelector('[name="newRequest.moralePenalty"]')?.value
     });
     if (created) ui.notifications.info("Просьба добавлена.");
     await this.render({ force: true });
   }
 
   static async onStartProject(event, target) {
-    await settlementService.startProject(target.dataset.projectId);
+    await requestPlayerAction("start-project", target.dataset.projectId);
     await this.render({ force: true });
   }
 
   static async onCompleteProject(event, target) {
     await settlementService.completeProject(target.dataset.projectId);
+    await this.render({ force: true });
+  }
+
+  static async onFailProject(event, target) {
+    await settlementService.failProject(target.dataset.projectId);
     await this.render({ force: true });
   }
 
@@ -581,6 +597,7 @@ export class SettlementApplication extends HandlebarsApplicationMixin(Applicatio
       title: root.querySelector('[name="newProject.title"]')?.value,
       description: root.querySelector('[name="newProject.description"]')?.value,
       reward: root.querySelector('[name="newProject.reward"]')?.value,
+      levelReward: root.querySelector('[name="newProject.levelReward"]')?.value,
       requirements
     });
     if (created) ui.notifications.info("Проект добавлен.");

@@ -1,0 +1,50 @@
+name: Publish development build
+
+on:
+  push:
+    branches:
+      - Dev
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  dev-release:
+    name: Validate and publish dev build
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out Dev branch
+        uses: actions/checkout@v4
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+
+      - name: Run project checks
+        run: npm run check
+
+      - name: Build development ZIP
+        run: |
+          mkdir -p build
+          cp module-dev.json build/module.json
+          cp -r scripts styles templates data lang build/
+          cp README.md CHANGELOG.md LICENSE build/
+          cd build
+          zip -r ../settlement-manager-dev.zip .
+
+      - name: Create or update rolling dev release
+        env:
+          GH_TOKEN: ${{ github.token }}
+          GH_REPO: ${{ github.repository }}
+        run: |
+          if gh release view dev-latest; then
+            gh release upload dev-latest settlement-manager-dev.zip --clobber
+          else
+            gh release create dev-latest settlement-manager-dev.zip \
+              --target Dev \
+              --title "Settlement Manager development build" \
+              --notes "Rolling development build from the Dev branch. Not intended for production worlds." \
+              --prerelease
+          fi
