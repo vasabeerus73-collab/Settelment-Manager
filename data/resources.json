@@ -1,0 +1,27 @@
+{
+  "food": {
+    "id": "food",
+    "label": "Припасы",
+    "icon": "fa-solid fa-sack-xmark"
+  },
+  "wood": {
+    "id": "wood",
+    "label": "Дерево",
+    "icon": "fa-solid fa-tree"
+  },
+  "stone": {
+    "id": "stone",
+    "label": "Камень",
+    "icon": "fa-solid fa-mountain"
+  },
+  "metal": {
+    "id": "metal",
+    "label": "Металл",
+    "icon": "fa-solid fa-gears"
+  },
+  "cloth": {
+    "id": "cloth",
+    "label": "Ткань и материалы",
+    "icon": "fa-solid fa-scroll"
+  }
+}

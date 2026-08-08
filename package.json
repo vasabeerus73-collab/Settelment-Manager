@@ -1,0 +1,10 @@
+{
+  "name": "foundry-settlement-manager",
+  "private": true,
+  "version": "1.0.0-dev.8.2",
+  "type": "module",
+  "scripts": {
+    "check": "node tools/check.mjs"
+  },
+  "devDependencies": {}
+}

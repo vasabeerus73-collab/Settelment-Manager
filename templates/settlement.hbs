@@ -1,0 +1,895 @@
+<div class="settlement-manager">
+  <header class="sm-hero">
+    <div class="sm-crest"><i class="fa-solid fa-tree-city"></i></div>
+    <div class="sm-hero-copy">
+      <div class="sm-title-row"><h2>{{state.name}}</h2></div>
+      <div class="sm-subtitle">Settlement Manager • v{{moduleVersion}}</div>
+    </div>
+    <div class="sm-top-stats">
+      <div class="sm-top-stat"><span>Уровень</span><strong><i class="fa-solid fa-shield-halved"></i> {{state.level}}</strong></div>
+      <div class="sm-top-stat"><span>Население</span><strong><i class="fa-solid fa-user-group"></i> {{state.population}} / {{state.capacity}}</strong></div>
+      <div class="sm-top-stat"><span>Мораль</span><strong><i class="fa-solid fa-face-smile"></i> {{state.morale}} / 100</strong></div>
+      <div class="sm-top-stat"><span>Защита</span><strong><i class="fa-solid fa-shield"></i> {{state.defense}}</strong></div>
+    </div>
+  </header>
+
+  <div class="sm-ui2-shell">
+    <aside class="sm-ui2-sidebar">
+      <div class="sm-ui2-sidebar-title">
+        <i class="fa-solid fa-compass"></i>
+        <span>Навигация</span>
+      </div>
+      <nav class="sm-ui2-nav">
+        {{#each tabs}}
+          <button type="button" class="sm-ui2-nav-item {{#if active}}is-active{{/if}}" data-action="switchTab" data-tab="{{id}}">
+            <i class="{{icon}}"></i><span>{{label}}</span>
+          </button>
+        {{/each}}
+      </nav>
+      <div class="sm-ui2-sidebar-status">
+        <div><span>Уровень</span><strong>{{state.level}}</strong></div>
+        <div><span>Жители</span><strong>{{state.population}} / {{state.capacity}}</strong></div>
+        <div><span>Мораль</span><strong>{{state.morale}}</strong></div>
+        <div><span>Защита</span><strong>{{state.defense}}</strong></div>
+      </div>
+    </aside>
+
+    <main class="sm-tab-content sm-ui2-workspace">
+    {{#if isOverview}}
+      <div class="sm-dashboard">
+        <section class="sm-panel sm-dashboard-hero">
+          <div class="sm-dashboard-hero-copy">
+            <span class="sm-kicker">Состояние поселения</span>
+            <h2>{{state.name}}</h2>
+            <p>{{state.description}}</p>
+          </div>
+
+          <div class="sm-dashboard-health">
+            <div class="sm-health-card tone-{{dashboard.populationTone}}">
+              <span><i class="fa-solid fa-user-group"></i> Население</span>
+              <strong>{{state.population}} / {{state.capacity}}</strong>
+              <div class="sm-progress"><span style="width: {{populationPercent}}%"></span></div>
+            </div>
+            <div class="sm-health-card tone-{{dashboard.moraleTone}}">
+              <span><i class="fa-solid fa-face-smile"></i> Мораль</span>
+              <strong>{{state.morale}} / 100</strong>
+              <div class="sm-progress"><span style="width: {{moralePercent}}%"></span></div>
+            </div>
+            <div class="sm-health-card">
+              <span><i class="fa-solid fa-shield"></i> Защита</span>
+              <strong>{{state.defense}}</strong>
+              <small>Текущий показатель</small>
+            </div>
+            <div class="sm-health-card">
+              <span><i class="fa-solid fa-layer-group"></i> Уровень</span>
+              <strong>{{state.level}}</strong>
+              <small>Развитие поселения</small>
+            </div>
+          </div>
+        </section>
+
+        <section class="sm-dashboard-row">
+          <article class="sm-panel sm-dashboard-stat">
+            <span>Построено</span>
+            <strong>{{dashboard.completedBuildings}}</strong>
+            <small>готовых построек</small>
+          </article>
+          <article class="sm-panel sm-dashboard-stat">
+            <span>Можно строить</span>
+            <strong>{{dashboard.availableBuildings}}</strong>
+            <small>доступных построек</small>
+          </article>
+          <article class="sm-panel sm-dashboard-stat">
+            <span>Просьбы</span>
+            <strong>{{dashboard.activeRequestCount}}</strong>
+            <small>активных</small>
+          </article>
+          <article class="sm-panel sm-dashboard-stat">
+            <span>Проекты</span>
+            <strong>{{dashboard.activeProjectCount}}</strong>
+            <small>активных</small>
+          </article>
+        </section>
+
+        <div class="sm-dashboard-columns">
+          <section class="sm-panel">
+            <div class="sm-panel-heading">
+              <h3><i class="fa-solid fa-hammer"></i> Строительство</h3>
+            </div>
+            {{#if activeConstruction}}
+              <div class="sm-dashboard-construction">
+                <div>
+                  <strong>{{activeConstruction.name}}</strong>
+                  <small>До уровня {{activeConstruction.targetLevel}}</small>
+                </div>
+                <span>{{activeConstruction.daysRemaining}} дн.</span>
+              </div>
+              <div class="sm-progress"><span style="width: {{activeConstruction.progressPercent}}%"></span></div>
+            {{else}}
+              <div class="sm-empty-state sm-empty-compact"><i class="fa-solid fa-circle-check"></i><span>Строительная бригада свободна</span></div>
+            {{/if}}
+
+            <div class="sm-dashboard-mini-table">
+              <div><span>Доступно к строительству</span><strong>{{dashboard.availableBuildings}}</strong></div>
+              <div><span>Закрыто чертежами</span><strong>{{dashboard.lockedBuildings}}</strong></div>
+            </div>
+          </section>
+
+          <section class="sm-panel">
+            <div class="sm-panel-heading">
+              <h3><i class="fa-solid fa-box-open"></i> Запасы</h3>
+            </div>
+            <div class="sm-dashboard-resources">
+              {{#each resources}}
+                <div><span><i class="{{icon}}"></i> {{label}}</span><strong>{{value}}</strong></div>
+              {{/each}}
+            </div>
+          </section>
+        </div>
+
+        <div class="sm-dashboard-columns">
+          <section class="sm-panel">
+            <div class="sm-panel-heading"><h3><i class="fa-solid fa-people-group"></i> Активные просьбы</h3></div>
+            <div class="sm-dashboard-list">
+              {{#each dashboard.activeRequests}}
+                <div class="sm-dashboard-list-row">
+                  <div><strong>{{title}}</strong><small>{{requester}}</small></div>
+                  <span class="sm-badge">{{statusLabel}}</span>
+                </div>
+              {{else}}
+                <div class="sm-empty-state sm-empty-compact"><i class="fa-solid fa-comment-slash"></i><span>Активных просьб нет</span></div>
+              {{/each}}
+            </div>
+          </section>
+
+          <section class="sm-panel">
+            <div class="sm-panel-heading"><h3><i class="fa-solid fa-clock-rotate-left"></i> Последние события</h3></div>
+            <div class="sm-dashboard-list">
+              {{#each dashboard.recentChronicle}}
+                <div class="sm-dashboard-list-row">
+                  <div><strong>{{title}}</strong><small>{{date}}</small></div>
+                  <span class="sm-ui2-ellipsis">{{text}}</span>
+                </div>
+              {{else}}
+                <div class="sm-empty-state sm-empty-compact"><i class="fa-solid fa-feather-pointed"></i><span>Летопись пока пуста</span></div>
+              {{/each}}
+            </div>
+          </section>
+        </div>
+      </div>
+    {{/if}}
+
+    {{#if isBuildings}}
+      <div class="sm-buildings-layout">
+        <section class="sm-panel sm-buildings-panel">
+          <div class="sm-panel-heading"><h3><i class="fa-solid fa-hammer"></i> Постройки</h3>{{#if editable}}<button type="button" class="sm-small-button" data-action="check"><i class="fa-solid fa-clock"></i> Проверить стройку</button>{{/if}}</div>
+          {{#if activeConstruction}}
+            <div class="sm-active-construction"><div><strong><i class="fa-solid fa-person-digging"></i> {{activeConstruction.name}}</strong><small>До уровня {{activeConstruction.targetLevel}}</small></div><span>{{activeConstruction.daysRemaining}} дн.</span></div>
+          {{else}}
+            <div class="sm-active-construction is-idle"><i class="fa-solid fa-circle-check"></i> Строительная бригада свободна</div>
+          {{/if}}
+
+          <div class="sm-building-explorer">
+            <div class="sm-building-table-head">
+              <span>Постройка</span>
+              <span>Ур.</span>
+              <span>Доступ</span>
+              <span>Состояние</span>
+            </div>
+            <div class="sm-building-list sm-building-list-ui21">
+              {{#each buildings}}
+                <button type="button"
+                        class="sm-building-row sm-building-row-ui21 cat-{{categoryKey}} {{#if isSelected}}is-selected{{/if}} {{#if isBuilding}}is-building{{/if}} {{#if isAccessLocked}}is-locked{{/if}}"
+                        data-action="selectBuilding"
+                        data-building-id="{{id}}">
+                  <span class="sm-category-strip"></span>
+                  <span class="sm-building-main">
+                    <i class="{{icon}} sm-building-icon"></i>
+                    <span class="sm-building-copy">
+                      <strong>{{name}}</strong>
+                      <small>{{category}}</small>
+                    </span>
+                  </span>
+                  <strong class="sm-building-level">{{currentLevel}} / {{maxLevel}}</strong>
+                  <span class="sm-building-access-cell">
+                    {{#if showAccessBadge}}
+                      <span class="sm-badge sm-badge-compact is-access-{{effectiveAccess}}" title="{{accessLabel}}">
+                        <i class="{{accessIcon}}"></i><span>{{accessLabel}}</span>
+                      </span>
+                    {{else}}
+                      <span class="sm-badge sm-badge-compact is-access-unlocked" title="Доступно">
+                        <i class="fa-solid fa-lock-open"></i><span>Доступно</span>
+                      </span>
+                    {{/if}}
+                  </span>
+                  <span class="sm-building-status-cell">
+                    <span class="sm-badge sm-badge-compact {{#if isBuilding}}is-building{{else}}{{#if isComplete}}is-complete{{/if}}{{/if}}" title="{{statusLabel}}">
+                      <span>{{statusLabel}}</span>
+                    </span>
+                  </span>
+                </button>
+              {{/each}}
+            </div>
+          </div>
+        </section>
+
+        {{#if selectedBuilding}}
+          <aside class="sm-panel sm-building-detail">
+            <div class="sm-detail-title"><i class="{{selectedBuilding.icon}}"></i><div><h3>{{selectedBuilding.name}}</h3><span>{{selectedBuilding.category}} • уровень {{selectedBuilding.currentLevel}} / {{selectedBuilding.maxLevel}}</span></div></div>
+            <p class="sm-detail-description">{{selectedBuilding.description}}</p>
+            {{#if editable}}
+              <div class="sm-blueprint-control">
+                <div>
+                  <strong><i class="fa-solid fa-scroll"></i> Доступ по чертежам</strong>
+                  <small>Определяет, что увидят игроки и можно ли начать строительство.</small>
+                </div>
+                <div class="sm-access-buttons">
+                  <button type="button" class="{{#if selectedBuilding.accessUnlocked}}is-active{{/if}}" data-action="setBuildingAccess" data-building-id="{{selectedBuilding.id}}" data-access="unlocked" title="Игроки видят постройку и могут её строить"><i class="fa-solid fa-lock-open"></i> Открыто</button>
+                  <button type="button" class="{{#if selectedBuilding.accessLocked}}is-active{{/if}}" data-action="setBuildingAccess" data-building-id="{{selectedBuilding.id}}" data-access="locked" title="Игроки видят постройку, но не могут начать её без чертежа"><i class="fa-solid fa-lock"></i> Нужен чертёж</button>
+                  <button type="button" class="{{#if selectedBuilding.accessHidden}}is-active{{/if}}" data-action="setBuildingAccess" data-building-id="{{selectedBuilding.id}}" data-access="hidden" title="Игроки вообще не видят эту постройку"><i class="fa-solid fa-eye-slash"></i> Скрыто</button>
+                </div>
+              </div>
+              {{#if selectedBuilding.unlockedByBlueprint}}<p class="sm-hint"><i class="fa-solid fa-scroll"></i> Постройка открыта найденным чертежом, несмотря на ручную настройку доступа.</p>{{/if}}
+            {{/if}}
+            <div class="sm-data-row"><span>Статус</span><strong>{{selectedBuilding.statusLabel}}</strong></div>
+
+            {{#if selectedBuilding.isBuilding}}
+              <div class="sm-data-row"><span>Целевой уровень</span><strong>{{selectedBuilding.targetLevel}}</strong></div>
+              <div class="sm-data-row"><span>Осталось</span><strong>{{selectedBuilding.daysRemaining}} дн.</strong></div>
+              <div class="sm-progress sm-progress-build"><span style="width: {{selectedBuilding.progressPercent}}%"></span></div>
+            {{else}}
+              {{#unless selectedBuilding.isMaxLevel}}
+                <div class="sm-data-row"><span>Следующий уровень</span><strong>{{selectedBuilding.nextLevelNumber}}</strong></div>
+                <div class="sm-data-row"><span>Время</span><strong>{{selectedBuilding.durationDays}} дн.</strong></div>
+                <h4>Стоимость</h4>
+                <div class="sm-detail-costs">
+                  {{#each selectedBuilding.costs}}
+                    <div class="sm-data-row {{#if enough}}is-enough{{else}}is-missing{{/if}}"><span><i class="{{icon}}"></i> {{label}}</span><strong>{{have}} / {{amount}} {{#if enough}}✓{{else}}✕{{/if}}</strong></div>
+                  {{/each}}
+                </div>
+              {{/unless}}
+            {{/if}}
+
+            <h4>{{#if selectedBuilding.isBuilding}}После завершения{{else}}Возможности следующего уровня{{/if}}</h4>
+            <ul class="sm-effects">{{#each selectedBuilding.effects}}<li><i class="fa-solid fa-circle-plus"></i> {{this}}</li>{{/each}}</ul>
+            {{#unless selectedBuilding.isBuilding}}{{#unless selectedBuilding.isMaxLevel}}
+              <button type="button" class="sm-primary sm-full-button" data-action="build" data-building-id="{{selectedBuilding.id}}" {{#unless selectedBuilding.canStart}}disabled{{/unless}}>
+                <i class="fa-solid fa-hammer"></i> {{selectedBuilding.actionLabel}}
+              </button>
+              {{#unless selectedBuilding.canStart}}<p class="sm-hint sm-warning">{{selectedBuilding.reason}}</p>{{/unless}}
+              {{#unless editable}}{{#if selectedBuilding.canStart}}<p class="sm-hint"><i class="fa-solid fa-paper-plane"></i> Запрос на строительство будет подтверждён активным ГМом.</p>{{/if}}{{/unless}}
+            {{/unless}}{{/unless}}
+          </aside>
+        {{/if}}
+      </div>
+    {{/if}}
+
+    {{#if isBoard}}
+      <div class="sm-board-page">
+        <header class="sm-board-header">
+          <div>
+            <span class="sm-kicker">Объявления поселения</span>
+            <h2><i class="fa-solid fa-thumbtack"></i> Доска</h2>
+            <p>Личные просьбы жителей и общие проекты поселения собраны в одном месте, но остаются визуально разделены.</p>
+          </div>
+          <div class="sm-board-counters">
+            <span><i class="fa-solid fa-people-group"></i> Просьб: <strong>{{dashboard.activeRequestCount}}</strong></span>
+            <span><i class="fa-solid fa-diagram-project"></i> Проектов: <strong>{{dashboard.activeProjectCount}}</strong></span>
+          </div>
+        </header>
+
+        <section class="sm-board-section sm-board-requests">
+          <div class="sm-board-section-title">
+            <div>
+              <h3><i class="fa-solid fa-people-group"></i> Просьбы жителей</h3>
+              <p>Личные проблемы, слухи и небольшие поручения.</p>
+            </div>
+            <span class="sm-board-section-mark">Жители</span>
+          </div>
+
+          <div class="sm-notice-grid">
+            {{#each requests}}
+              <article class="sm-notice-card sm-notice-request {{#if isComplete}}is-complete{{/if}} {{#if isFailed}}is-failed{{/if}}">
+                <span class="sm-notice-pin"><i class="fa-solid fa-thumbtack"></i></span>
+
+                <div class="sm-notice-topline">
+                  <span class="sm-notice-type"><i class="fa-solid fa-comment"></i> Просьба</span>
+                  <span class="sm-badge {{#if isComplete}}is-complete{{/if}}">{{statusLabel}}</span>
+                </div>
+
+                <h4>{{title}}</h4>
+                <p class="sm-notice-text">{{description}}</p>
+
+                <dl class="sm-notice-meta">
+                  <div>
+                    <dt>Кто просит</dt>
+                    <dd>{{requester}}</dd>
+                  </div>
+                  <div>
+                    <dt>Награда / эффект</dt>
+                    <dd>{{reward}}</dd>
+                  </div>
+                </dl>
+
+                <footer class="sm-notice-actions">
+                  {{#if ../editable}}
+                    {{#if isAvailable}}
+                      <button type="button" data-action="requestStatus" data-request-id="{{id}}" data-status="accepted">
+                        <i class="fa-solid fa-hand"></i> Принять
+                      </button>
+                    {{/if}}
+                    {{#if isAccepted}}
+                      <button type="button" class="sm-primary" data-action="requestStatus" data-request-id="{{id}}" data-status="complete">
+                        <i class="fa-solid fa-check"></i> Выполнить
+                      </button>
+                      <button type="button" class="sm-danger-button" data-action="requestStatus" data-request-id="{{id}}" data-status="failed" title="Провалить">
+                        <i class="fa-solid fa-xmark"></i>
+                      </button>
+                    {{/if}}
+                    <button type="button" class="sm-ghost-button" data-action="deleteRequest" data-request-id="{{id}}" title="Удалить">
+                      <i class="fa-solid fa-trash"></i>
+                    </button>
+                  {{else}}
+                    <span class="sm-hint">Только ГМ изменяет состояние просьбы.</span>
+                  {{/if}}
+                </footer>
+              </article>
+            {{else}}
+              <div class="sm-board-empty">
+                <i class="fa-solid fa-comment-slash"></i>
+                <strong>Просьб пока нет</strong>
+                <span>Когда у жителей появятся заботы, объявления появятся здесь.</span>
+              </div>
+            {{/each}}
+          </div>
+        </section>
+
+        <div class="sm-board-divider">
+          <span><i class="fa-solid fa-nail"></i></span>
+        </div>
+
+        <section class="sm-board-section sm-board-projects">
+          <div class="sm-board-section-title">
+            <div>
+              <h3><i class="fa-solid fa-diagram-project"></i> Проекты поселения</h3>
+              <p>Общие инициативы, крупные работы и долгосрочные изменения.</p>
+            </div>
+            <span class="sm-board-section-mark">Поселение</span>
+          </div>
+
+          <div class="sm-notice-grid">
+            {{#each projects}}
+              <article class="sm-notice-card sm-notice-project {{#if isComplete}}is-complete{{/if}}">
+                <span class="sm-notice-pin"><i class="fa-solid fa-thumbtack"></i></span>
+
+                <div class="sm-notice-topline">
+                  <span class="sm-notice-type"><i class="fa-solid fa-compass-drafting"></i> Проект</span>
+                  <span class="sm-badge {{#if isComplete}}is-complete{{/if}}">{{statusLabel}}</span>
+                </div>
+
+                <h4>{{title}}</h4>
+                <p class="sm-notice-text">{{description}}</p>
+
+                <div class="sm-notice-project-block">
+                  <span class="sm-notice-label">Необходимо</span>
+                  <div class="sm-notice-costs">
+                    {{#each requirements}}
+                      <span class="sm-cost {{#if enough}}is-enough{{else}}is-missing{{/if}}" title="{{label}}">
+                        <i class="{{icon}}"></i> {{have}} / {{amount}}
+                      </span>
+                    {{else}}
+                      <span class="sm-hint">Ресурсы не требуются</span>
+                    {{/each}}
+                  </div>
+                </div>
+
+                <div class="sm-notice-result">
+                  <span class="sm-notice-label">Результат</span>
+                  <strong>{{reward}}</strong>
+                </div>
+
+                {{#if ../editable}}
+                  {{#if isAvailable}}{{#unless canStart}}
+                    <div class="sm-notice-warning"><i class="fa-solid fa-triangle-exclamation"></i> {{reason}}</div>
+                  {{/unless}}{{/if}}
+                {{/if}}
+
+                <footer class="sm-notice-actions">
+                  {{#if ../editable}}
+                    {{#if isAvailable}}
+                      <button type="button" class="sm-primary" data-action="startProject" data-project-id="{{id}}" {{#unless canStart}}disabled{{/unless}}>
+                        <i class="fa-solid fa-play"></i> Начать
+                      </button>
+                    {{/if}}
+                    {{#if isActive}}
+                      <button type="button" class="sm-primary" data-action="completeProject" data-project-id="{{id}}">
+                        <i class="fa-solid fa-flag-checkered"></i> Завершить
+                      </button>
+                    {{/if}}
+                    <button type="button" class="sm-ghost-button" data-action="deleteProject" data-project-id="{{id}}" title="Удалить">
+                      <i class="fa-solid fa-trash"></i>
+                    </button>
+                  {{else}}
+                    <span class="sm-hint">Проектами управляет ГМ.</span>
+                  {{/if}}
+                </footer>
+              </article>
+            {{else}}
+              <div class="sm-board-empty">
+                <i class="fa-solid fa-compass-drafting"></i>
+                <strong>Проектов пока нет</strong>
+                <span>Большие задачи поселения будут закреплены в этой части доски.</span>
+              </div>
+            {{/each}}
+          </div>
+        </section>
+      </div>
+    {{/if}}
+
+    {{#if isChronicle}}
+      <section class="sm-panel sm-full-panel sm-ui2-section">
+        <div class="sm-ui2-page-head"><div><h2><i class="fa-solid fa-book"></i> Летопись {{state.name}}</h2><p>Хронология важных событий и изменений поселения.</p></div></div>
+        <div class="sm-ui2-table">
+          <div class="sm-ui2-tr sm-ui2-th sm-ui2-chronicle-cols"><span>Дата</span><span>Событие</span><span>Описание</span></div>
+          {{#each chronicle}}
+            <div class="sm-ui2-tr sm-ui2-chronicle-cols"><span class="sm-ui2-date">{{date}}</span><strong>{{title}}</strong><span>{{text}}</span></div>
+          {{else}}<div class="sm-empty-state"><i class="fa-solid fa-feather-pointed"></i><span>Летопись пока пуста.</span></div>{{/each}}
+        </div>
+      </section>
+    {{/if}}
+
+    {{#if isResourceIntake}}
+      <section class="sm-panel sm-full-panel sm-ui2-section">
+        <div class="sm-ui2-page-head"><div><h2><i class="fa-solid fa-cart-flatbed"></i> Добавить ресурсы</h2><p>Вводится только новая добыча. Значения прибавляются к текущим запасам.</p></div></div>
+        <div class="sm-ui2-table">
+          <div class="sm-ui2-tr sm-ui2-th sm-ui2-resource-cols"><span>Ресурс</span><span>Текущее количество</span><span>Добавить</span></div>
+          {{#each resources}}
+            <div class="sm-ui2-tr sm-ui2-resource-cols">
+              <div class="sm-ui2-resource-name"><i class="{{icon}}"></i><strong>{{label}}</strong></div>
+              <strong>{{value}}</strong>
+              <input type="number" name="quickResources.{{key}}" min="0" step="1" value="0" />
+            </div>
+          {{/each}}
+        </div>
+        <div class="sm-ui2-toolbar"><button type="button" class="sm-primary" data-action="quickAddResources"><i class="fa-solid fa-plus"></i> Добавить ко всем указанным</button><span class="sm-hint">Пример: 147 дерева + 15 = 162.</span></div>
+      </section>
+    {{/if}}
+
+    {{#if isManagement}}
+      <section class="sm-panel sm-full-panel sm-ui2-section">
+        <div class="sm-ui2-page-head"><div><h2><i class="fa-solid fa-gears"></i> Управление</h2><p>Точные значения и инструменты ГМа. Для прибавления добычи используйте отдельный раздел.</p></div></div>
+        <div class="sm-ui2-management">
+          <details open>
+            <summary><i class="fa-solid fa-sliders"></i> Основные параметры</summary>
+            <div class="sm-ui2-form-table">
+              <label><span>Название</span><input type="text" name="name" value="{{state.name}}" /></label>
+              <label class="is-wide"><span>Описание</span><textarea name="description" rows="3">{{state.description}}</textarea></label>
+              <label><span>Уровень</span><input type="number" name="level" min="1" step="1" value="{{state.level}}" /></label>
+              <label><span>Защита</span><input type="number" name="defense" min="0" step="1" value="{{state.defense}}" /></label>
+              <label><span>Жители</span><input type="number" name="population" min="0" step="1" value="{{state.population}}" /></label>
+              <label><span>Вместимость</span><input type="number" name="capacity" min="1" step="1" value="{{state.capacity}}" /></label>
+              <label><span>Мораль</span><input type="number" name="morale" min="0" max="100" step="1" value="{{state.morale}}" /></label>
+            </div>
+          </details>
+
+          <details>
+            <summary><i class="fa-solid fa-box-open"></i> Точное количество ресурсов</summary>
+            <div class="sm-ui2-table sm-ui2-mini-table">
+              <div class="sm-ui2-tr sm-ui2-th sm-ui2-resource-edit-cols"><span>Ресурс</span><span>Количество</span></div>
+              {{#each resources}}<div class="sm-ui2-tr sm-ui2-resource-edit-cols"><div class="sm-ui2-resource-name"><i class="{{icon}}"></i><strong>{{label}}</strong></div><input type="number" name="resources.{{key}}" min="0" step="1" value="{{value}}" /></div>{{/each}}
+            </div>
+          </details>
+
+          <details>
+            <summary><i class="fa-solid fa-person-circle-question"></i> Создать просьбу жителя</summary>
+            <div class="sm-ui2-form-table">
+              <label><span>Название</span><input type="text" name="newRequest.title" placeholder="Лекарство для Миры" /></label>
+              <label><span>Кто просит</span><input type="text" name="newRequest.requester" placeholder="Лекарь Тесса" /></label>
+              <label class="is-wide"><span>Описание</span><textarea name="newRequest.description" rows="3"></textarea></label>
+              <label class="is-wide"><span>Награда / эффект</span><input type="text" name="newRequest.reward" placeholder="+3 морали, новый рецепт..." /></label>
+            </div>
+            <button type="button" class="sm-primary" data-action="addRequest"><i class="fa-solid fa-plus"></i> Добавить просьбу</button>
+          </details>
+
+          <details>
+            <summary><i class="fa-solid fa-diagram-project"></i> Создать проект</summary>
+            <div class="sm-ui2-form-table">
+              <label><span>Название</span><input type="text" name="newProject.title" placeholder="Восстановить мост" /></label>
+              <label class="is-wide"><span>Описание</span><textarea name="newProject.description" rows="3"></textarea></label>
+            </div>
+            <div class="sm-ui2-table sm-ui2-mini-table">
+              <div class="sm-ui2-tr sm-ui2-th sm-ui2-resource-edit-cols"><span>Ресурс</span><span>Нужно</span></div>
+              {{#each resources}}<div class="sm-ui2-tr sm-ui2-resource-edit-cols"><div class="sm-ui2-resource-name"><i class="{{icon}}"></i><strong>{{label}}</strong></div><input type="number" name="newProject.{{key}}" min="0" value="0" /></div>{{/each}}
+            </div>
+            <label class="sm-ui2-inline-field"><span>Результат</span><input type="text" name="newProject.reward" placeholder="Открывает северную дорогу" /></label>
+            <button type="button" class="sm-primary" data-action="addProject"><i class="fa-solid fa-plus"></i> Добавить проект</button>
+          </details>
+
+          <details>
+            <summary><i class="fa-solid fa-feather-pointed"></i> Запись в летопись</summary>
+            <div class="sm-ui2-form-table">
+              <label><span>Дата</span><input type="text" name="newChronicle.date" placeholder="Текущий игровой день" /></label>
+              <label><span>Заголовок</span><input type="text" name="newChronicle.title" placeholder="В поселение пришёл караван" /></label>
+              <label class="is-wide"><span>Текст</span><textarea name="newChronicle.text" rows="3"></textarea></label>
+            </div>
+            <button type="button" class="sm-primary" data-action="addChronicle"><i class="fa-solid fa-plus"></i> Добавить запись</button>
+          </details>
+
+          <details class="sm-ui2-danger-zone">
+            <summary><i class="fa-solid fa-vial"></i> Тестирование</summary>
+            <p class="sm-hint">Сбросит игровое состояние поселения, но не удалит пользовательские паки и Data Editor.</p>
+            <button type="button" class="sm-danger-button" data-action="factoryReset"><i class="fa-solid fa-arrow-rotate-left"></i> Сбросить состояние поселения</button>
+          </details>
+        </div>
+      </section>
+    {{/if}}
+
+    {{#if isDataEditor}}
+      <div class="sm-editor-layout sm-ui2-master-detail">
+        <aside class="sm-panel sm-editor-sidebar sm-ui2-list-panel">
+          <h3><i class="fa-solid fa-database"></i> Data Editor</h3>
+          {{#if hasCustomPacks}}
+            <label class="sm-stack-field">Пак
+              <select name="editor.packId">
+                {{#each contentPacks}}
+                  <option value="{{id}}" {{#if (eq id ../editor.selectedPackId)}}selected{{/if}}>
+                    {{name}}{{#unless enabled}} (выключен){{/unless}}
+                  </option>
+                {{/each}}
+              </select>
+            </label>
+
+            <div class="sm-editor-section-title">
+              <span>Постройки</span>
+            </div>
+            <div class="sm-editor-item-list">
+              {{#each editor.buildings}}
+                <button type="button"
+                        data-action="selectEditorBuilding"
+                        data-pack-id="{{../editor.selectedPackId}}"
+                        data-building-id="{{id}}"
+                        class="{{#if (and (eq id ../editor.selectedBuilding.id) ../editor.isBuildingMode)}}active{{/if}}">
+                  <i class="{{icon}}"></i><span>{{name}}</span>
+                </button>
+              {{else}}
+                <div class="sm-hint">В этом паке ещё нет построек.</div>
+              {{/each}}
+            </div>
+            <button type="button" class="sm-full-button" data-action="selectEditorBuilding" data-pack-id="{{editor.selectedPackId}}" data-building-id="">
+              <i class="fa-solid fa-plus"></i> Новая постройка
+            </button>
+
+            <div class="sm-editor-section-title">
+              <span>Ресурсы</span>
+            </div>
+            <div class="sm-editor-item-list">
+              {{#each editor.resources}}
+                <button type="button"
+                        data-action="selectEditorResource"
+                        data-pack-id="{{../editor.selectedPackId}}"
+                        data-resource-id="{{id}}"
+                        class="{{#if (and (eq id ../editor.selectedResource.id) ../editor.isResourceMode)}}active{{/if}}">
+                  <i class="{{icon}}"></i><span>{{label}}</span>
+                </button>
+              {{else}}
+                <div class="sm-hint">Пользовательских ресурсов пока нет.</div>
+              {{/each}}
+            </div>
+            <button type="button" class="sm-full-button sm-sidebar-create-resource" data-action="selectEditorResource" data-pack-id="{{editor.selectedPackId}}" data-resource-id="">
+              <i class="fa-solid fa-plus"></i> Новый ресурс
+            </button>
+
+            <div class="sm-editor-section-title">
+              <span>Чертежи</span>
+            </div>
+            <div class="sm-editor-item-list">
+              {{#each editor.blueprints}}
+                <button type="button"
+                        data-action="selectEditorBlueprint"
+                        data-pack-id="{{../editor.selectedPackId}}"
+                        data-blueprint-id="{{id}}"
+                        class="{{#if (and (eq id ../editor.selectedBlueprint.id) ../editor.isBlueprintMode)}}active{{/if}}">
+                  <i class="fa-solid fa-scroll"></i><span>{{name}}</span>
+                </button>
+              {{else}}
+                <div class="sm-hint">Чертежей пока нет.</div>
+              {{/each}}
+            </div>
+            <button type="button" class="sm-full-button" data-action="selectEditorBlueprint" data-pack-id="{{editor.selectedPackId}}" data-blueprint-id="">
+              <i class="fa-solid fa-plus"></i> Новый чертёж
+            </button>
+
+            <div class="sm-editor-section-title">
+              <span>Найденные чертежи</span>
+            </div>
+            <div class="sm-editor-item-list">
+              {{#each editor.knownBlueprints}}
+                <div class="sm-clone-row">
+                  <span><i class="fa-solid fa-scroll"></i> {{name}}</span>
+                  <button type="button" class="sm-ghost-button" data-action="toggleBlueprintKnown" data-blueprint-id="{{id}}" title="Отозвать чертёж">
+                    <i class="fa-solid fa-rotate-left"></i>
+                  </button>
+                </div>
+              {{else}}
+                <div class="sm-hint">Поселение ещё не нашло ни одного чертежа.</div>
+              {{/each}}
+            </div>
+          {{else}}
+            <div class="sm-empty-state">
+              <i class="fa-solid fa-box-open"></i>
+              <span>Сначала создайте пользовательский пак во вкладке «Паки».</span>
+            </div>
+          {{/if}}
+        </aside>
+
+        <section class="sm-panel sm-editor-main sm-ui2-detail-panel">
+          {{#if hasCustomPacks}}
+
+            {{#if editor.isBuildingMode}}
+              <div class="sm-editor-tabs-note">
+                <strong>{{#if editor.isNewBuilding}}Новая постройка{{else}}Редактор постройки{{/if}}</strong>
+                <span>{{#if editor.isNewBuilding}}Заполните поля и нажмите «Сохранить постройку».{{else}}Редактирование пользовательской постройки и её уровней.{{/if}}</span>
+              </div>
+
+              <div class="sm-form-grid">
+                <label>ID<input type="text" name="editor.id" value="{{editor.selectedBuilding.id}}" placeholder="заполнится автоматически"></label>
+                <label>Название<input type="text" name="editor.name" value="{{editor.selectedBuilding.name}}" placeholder="Например: Обсерватория"></label>
+                <label>Категория<input type="text" name="editor.category" value="{{editor.selectedBuilding.category}}" placeholder="Инфраструктура"></label>
+                <label>Иконка<input type="text" name="editor.icon" value="{{editor.selectedBuilding.icon}}" placeholder="fa-solid fa-building"></label>
+              </div>
+
+              <label class="sm-stack-field">
+                Описание
+                <textarea name="editor.description" rows="3">{{editor.selectedBuilding.description}}</textarea>
+              </label>
+
+              <div class="sm-levels-head">
+                <h3>Уровни постройки</h3>
+                {{#if editor.selectedBuilding}}
+                  <button type="button" data-action="addEditorLevel"><i class="fa-solid fa-plus"></i> Добавить уровень</button>
+                {{/if}}
+              </div>
+
+              <div class="sm-editor-levels">
+                {{#each editor.selectedBuildingLevels}}
+                  <article class="sm-level-card" data-editor-level-index="{{@index}}">
+                    <div class="sm-level-card-head">
+                      <strong>Уровень {{level}}</strong>
+                      {{#unless (eq level 1)}}
+                        <button type="button" class="sm-danger-button" data-action="removeEditorLevel" data-level-index="{{@index}}">
+                          <i class="fa-solid fa-trash"></i>
+                        </button>
+                      {{/unless}}
+                    </div>
+
+                    <label>Срок строительства, дней
+                      <input type="number" name="editor.level.{{@index}}.duration" min="1" value="{{durationDays}}">
+                    </label>
+
+                    <div class="sm-editor-cost-grid">
+                      {{#each costs}}
+                        <label>
+                          <span><i class="{{icon}}"></i> {{label}}</span>
+                          <input type="number" min="0" name="editor.level.{{@../index}}.cost.{{id}}" value="{{value}}">
+                        </label>
+                      {{/each}}
+                    </div>
+
+                    <label class="sm-stack-field">
+                      Возможности / эффекты
+                      <textarea name="editor.level.{{@index}}.effects" rows="3">{{effectsText}}</textarea>
+                    </label>
+                  </article>
+                {{else}}
+                  <div class="sm-empty-state">
+                    <i class="fa-solid fa-hammer"></i>
+                    <span>Создайте постройку кнопкой слева, затем настройте её здесь.</span>
+                  </div>
+                {{/each}}
+              </div>
+
+              <div class="sm-editor-footer-actions">
+                <button type="button" class="sm-primary" data-action="saveCustomBuilding">
+                  <i class="fa-solid fa-floppy-disk"></i> Сохранить постройку
+                </button>
+                {{#if editor.selectedBuilding}}
+                  <button type="button" class="sm-danger-button" data-action="deleteCustomBuilding">
+                    <i class="fa-solid fa-trash"></i> Удалить
+                  </button>
+                {{/if}}
+              </div>
+            {{/if}}
+
+            {{#if editor.isResourceMode}}
+              <div class="sm-editor-tabs-note">
+                <strong>{{#if editor.isNewResource}}Новый ресурс{{else}}Редактор ресурса{{/if}}</strong>
+                <span>Ресурс будет доступен в стоимости зданий и проектов.</span>
+              </div>
+
+              <input type="hidden" name="resource.packId" value="{{editor.selectedPackId}}">
+              <div class="sm-form-grid">
+                <label>ID
+                  <input type="text" name="resource.id" value="{{editor.selectedResource.id}}" placeholder="например ancient-parts">
+                </label>
+                <label>Название
+                  <input type="text" name="resource.label" value="{{editor.selectedResource.label}}" placeholder="Древние детали">
+                </label>
+                <label>Иконка
+                  <input type="text" name="resource.icon" value="{{editor.selectedResource.icon}}" placeholder="fa-solid fa-gears">
+                </label>
+              </div>
+
+              <div class="sm-editor-footer-actions">
+                <button type="button" class="sm-primary" data-action="saveResource">
+                  <i class="fa-solid fa-floppy-disk"></i> Сохранить ресурс
+                </button>
+                {{#if editor.selectedResource}}
+                  <button type="button" class="sm-danger-button" data-action="deleteResource">
+                    <i class="fa-solid fa-trash"></i> Удалить ресурс
+                  </button>
+                {{/if}}
+              </div>
+            {{/if}}
+
+            {{#if editor.isBlueprintMode}}
+              <div class="sm-editor-tabs-note">
+                <strong>{{#if editor.isNewBlueprint}}Новый чертёж{{else}}Редактор чертежа{{/if}}</strong>
+                <span>Чертёж может открывать одну или несколько построек.</span>
+              </div>
+
+              <input type="hidden" name="blueprint.packId" value="{{editor.selectedPackId}}">
+              <div class="sm-form-grid">
+                <label>ID
+                  <input type="text" name="blueprint.id" value="{{editor.selectedBlueprint.id}}" placeholder="заполнится автоматически">
+                </label>
+                <label>Название
+                  <input type="text" name="blueprint.name" value="{{editor.selectedBlueprint.name}}" placeholder="Чертёж кузницы">
+                </label>
+              </div>
+
+              <label class="sm-stack-field">
+                Описание
+                <textarea name="blueprint.description" rows="3">{{editor.selectedBlueprint.description}}</textarea>
+              </label>
+
+              <div class="sm-editor-section-title">Открывает постройки</div>
+              <p class="sm-hint">Постройка с доступом «Нужен чертёж» или «Скрыто» становится доступной, как только поселение находит открывающий её чертёж.</p>
+              <div class="sm-blueprint-grid">
+                {{#each editor.blueprintBuildingOptions}}
+                  <label>
+                    <input type="checkbox" name="blueprint.unlocks" value="{{id}}" {{#if selected}}checked{{/if}}>
+                    <span>{{name}}</span>
+                  </label>
+                {{/each}}
+              </div>
+
+              <div class="sm-editor-footer-actions">
+                <button type="button" class="sm-primary" data-action="saveBlueprint">
+                  <i class="fa-solid fa-floppy-disk"></i> Сохранить чертёж
+                </button>
+                {{#if editor.selectedBlueprint}}
+                  <button type="button" class="{{#if editor.selectedBlueprintKnown}}sm-ghost-button{{else}}sm-primary{{/if}}"
+                          data-action="toggleBlueprintKnown" data-blueprint-id="{{editor.selectedBlueprint.id}}">
+                    <i class="fa-solid fa-scroll"></i>
+                    {{#if editor.selectedBlueprintKnown}}Отозвать у поселения{{else}}Выдать поселению{{/if}}
+                  </button>
+                  <button type="button" class="sm-danger-button" data-action="deleteBlueprint">
+                    <i class="fa-solid fa-trash"></i> Удалить чертёж
+                  </button>
+                {{/if}}
+              </div>
+            {{/if}}
+
+            <hr>
+            <details class="sm-editor-advanced">
+              <summary><i class="fa-solid fa-toolbox"></i> Дополнительные инструменты</summary>
+
+              <h3><i class="fa-solid fa-copy"></i> Клонирование встроенного контента</h3>
+              <p class="sm-hint">
+                Клон получает тот же ID. Пока пользовательский пак включён, его версия переопределяет встроенную.
+              </p>
+
+              <div class="sm-clone-grid">
+                <section class="sm-subpanel">
+                  <h4>Встроенные постройки</h4>
+                  <label class="sm-stack-field">Куда клонировать
+                    <select name="clone.buildingPackId">
+                      {{#each contentPacks}}<option value="{{id}}" {{#if (eq id ../editor.selectedPackId)}}selected{{/if}}>{{name}}</option>{{/each}}
+                    </select>
+                  </label>
+                  <div class="sm-clone-list">
+                    {{#each editor.coreBuildings}}
+                      <div class="sm-clone-row">
+                        <span><i class="{{icon}}"></i> {{name}} <small>{{category}}</small></span>
+                        <button type="button" data-action="cloneCoreBuilding" data-building-id="{{id}}">
+                          <i class="fa-solid fa-copy"></i> Клонировать
+                        </button>
+                      </div>
+                    {{/each}}
+                  </div>
+                </section>
+
+                <section class="sm-subpanel">
+                  <h4>Быстрые чертежи</h4>
+                  <label class="sm-stack-field">Куда клонировать
+                    <select name="clone.blueprintPackId">
+                      {{#each contentPacks}}<option value="{{id}}" {{#if (eq id ../editor.selectedPackId)}}selected{{/if}}>{{name}}</option>{{/each}}
+                    </select>
+                  </label>
+                  <div class="sm-clone-list">
+                    {{#each editor.blueprintBuildingOptions}}
+                      <div class="sm-clone-row">
+                        <span><i class="fa-solid fa-scroll"></i> Чертёж: {{name}}</span>
+                        <button type="button" data-action="cloneCoreBlueprint" data-building-id="{{id}}">
+                          <i class="fa-solid fa-copy"></i> Создать
+                        </button>
+                      </div>
+                    {{/each}}
+                  </div>
+                </section>
+              </div>
+
+            </details>
+          {{else}}
+            <div class="sm-empty-state">
+              <i class="fa-solid fa-box-open"></i>
+              <span>Создайте пользовательский пак во вкладке «Паки» — тогда здесь появятся редакторы построек, ресурсов и чертежей.</span>
+            </div>
+          {{/if}}
+
+          <hr>
+          <details class="sm-editor-advanced">
+            <summary><i class="fa-solid fa-file-arrow-down"></i> Экспорт / импорт</summary>
+            <p class="sm-hint">В выгрузку попадают состояние поселения и все пользовательские паки. Импорт заменяет и то, и другое.</p>
+            <button type="button" class="sm-primary sm-full-button" data-action="exportBundle">
+              <i class="fa-solid fa-download"></i> Скачать JSON
+            </button>
+            <label class="sm-stack-field">
+              Импорт JSON
+              <textarea name="import.bundle" rows="8" placeholder="Вставьте JSON экспорта..."></textarea>
+            </label>
+            <button type="button" class="sm-full-button" data-action="importBundle">
+              <i class="fa-solid fa-upload"></i> Импортировать
+            </button>
+          </details>
+        </section>
+      </div>
+    {{/if}}
+
+    {{#if isPacks}}
+      <div class="sm-ui2-master-detail sm-ui2-packs-layout">
+        <section class="sm-panel">
+          <div class="sm-ui2-page-head"><div><h2><i class="fa-solid fa-boxes-stacked"></i> Пользовательские паки</h2><p>Включайте и отключайте наборы контента.</p></div></div>
+          <div class="sm-ui2-table">
+            <div class="sm-ui2-tr sm-ui2-th sm-ui2-pack-cols"><span>Пак</span><span>Статус</span><span>Действия</span></div>
+            {{#each contentPacks}}
+              <div class="sm-ui2-tr sm-ui2-pack-cols">
+                <div class="sm-ui2-primary-cell"><strong>{{name}}</strong><small>{{description}}</small></div>
+                <span class="sm-badge {{#if enabled}}is-complete{{/if}}">{{#if enabled}}Включён{{else}}Выключен{{/if}}</span>
+                <div class="sm-ui2-row-actions">
+                  <button type="button" data-action="togglePack" data-pack-id="{{id}}" title="{{#if enabled}}Выключить{{else}}Включить{{/if}}"><i class="fa-solid fa-power-off"></i></button>
+                  <button type="button" class="sm-danger-button" data-action="deletePack" data-pack-id="{{id}}" title="Удалить"><i class="fa-solid fa-trash"></i></button>
+                </div>
+              </div>
+            {{else}}<div class="sm-empty-state"><i class="fa-solid fa-box-open"></i><span>Пользовательских паков пока нет.</span></div>{{/each}}
+          </div>
+        </section>
+        <aside class="sm-panel sm-ui2-detail-panel">
+          <h3><i class="fa-solid fa-plus"></i> Создать пак</h3>
+          <label class="sm-stack-field">Название<input type="text" name="pack.name" placeholder="Например: Последние Желания" /></label>
+          <label class="sm-stack-field">Описание<textarea name="pack.description" rows="5" placeholder="Контент для моей кампании..."></textarea></label>
+          <button type="button" class="sm-primary sm-full-button" data-action="createPack"><i class="fa-solid fa-box"></i> Создать пак</button>
+          <p class="sm-hint">Базовый набор остаётся встроенным и не удаляется.</p>
+        </aside>
+      </div>
+    {{/if}}
+
+    </main>
+  </div>
+
+
+  <footer class="sm-footerbar">
+    <div class="sm-world-time"><i class="fa-regular fa-clock"></i> Строительство использует игровое время Foundry</div>
+    <div class="sm-footer-actions">{{#if isManagement}}<button type="submit" class="sm-primary"><i class="fa-solid fa-floppy-disk"></i> Сохранить параметры</button>{{/if}}</div>
+  </footer>
+</div>

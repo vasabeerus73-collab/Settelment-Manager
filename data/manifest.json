@@ -1,0 +1,6 @@
+{
+  "schemaVersion": 1,
+  "resources": "resources.json",
+  "defaultState": "default-state.json",
+  "buildingsIndex": "buildings/index.json"
+}

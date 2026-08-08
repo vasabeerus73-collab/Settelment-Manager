@@ -1,0 +1,30 @@
+{
+  "id": "settlement-manager",
+  "title": "Settlement Manager",
+  "description": "Settlement Manager UI 2.2: notice board for requests/projects and improved building workspace.",
+  "version": "1.1.0-alpha.1",
+  "authors": [
+    {
+      "name": "Guffi"
+    }
+  ],
+  "compatibility": {
+    "minimum": "13",
+    "verified": "13.351"
+  },
+  "esmodules": [
+    "scripts/main.js",
+    "scripts/core/index.js"
+  ],
+  "styles": [
+    "styles/settlement.css"
+  ],
+  "languages": [
+    {
+      "lang": "ru",
+      "name": "Русский",
+      "path": "lang/ru.json"
+    }
+  ],
+  "socket": true
+}
