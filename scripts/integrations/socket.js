@@ -77,8 +77,114 @@ export function registerSettlementSocket() {
       settle(message.requestId, message);
       if (message.ok) ui.notifications.info(`Строительство «${message.buildingName}» начато.`);
       else ui.notifications.warn(message.reason || "Не удалось начать строительство.");
+      return;
+    }
+
+    if (message.type === "player-action-execute") {
+      const gm = primaryActiveGM();
+      if (!game.user?.isGM || !gm || gm.id !== game.user.id) return;
+
+      const user = game.users.get(message.userId);
+      let ok = false;
+      let reason = "Некорректный запрос игрока.";
+      let label = "Действие";
+
+      if (user && message.action === "accept-request") {
+        const request = settlementService.getData().requests?.find((entry) => entry.id === message.entityId);
+        label = request?.title ?? "Просьба";
+        if (!request) reason = "Просьба не найдена.";
+        else if (request.status !== "available") reason = "Эта просьба уже принята или завершена.";
+        else {
+          ok = await settlementService.acceptRequest(message.entityId, { acceptedBy: user.name });
+          if (!ok) reason = "Не удалось принять просьбу.";
+        }
+      } else if (user && message.action === "start-project") {
+        const project = settlementService.getData().projects?.find((entry) => entry.id === message.entityId);
+        label = project?.title ?? "Проект";
+        const check = settlementService.canStartProject(message.entityId);
+        reason = check.reason ?? null;
+        if (check.ok) {
+          ok = await settlementService.startProject(message.entityId, { requestedBy: user.name });
+          if (!ok) reason = "Не удалось взять проект.";
+        }
+      }
+
+      game.socket.emit(CHANNEL, {
+        type: "player-action-result",
+        requestId: message.requestId,
+        userId: message.userId,
+        action: message.action,
+        label,
+        ok,
+        reason
+      });
+
+      if (ok) ui.notifications.info(`${user.name}: ${label}.`);
+      return;
+    }
+
+    if (message.type === "player-action-result" && message.userId === game.user?.id) {
+      settle(message.requestId, message);
+      if (message.ok) {
+        const verb = message.action === "accept-request" ? "Просьба принята" : "Проект взят";
+        ui.notifications.info(`${verb}: ${message.label}.`);
+      } else {
+        ui.notifications.warn(message.reason || "Не удалось выполнить действие.");
+      }
     }
   });
+}
+
+export async function requestPlayerAction(action, entityId) {
+  if (game.user?.isGM) {
+    if (action === "accept-request") return settlementService.acceptRequest(entityId, { acceptedBy: game.user.name });
+    if (action === "start-project") return settlementService.startProject(entityId, { requestedBy: game.user.name });
+    return false;
+  }
+
+  const state = settlementService.getData();
+  if (action === "accept-request") {
+    const request = state.requests?.find((entry) => entry.id === entityId);
+    if (!request || request.status !== "available") {
+      ui.notifications.warn(request ? "Эта просьба уже принята или завершена." : "Просьба не найдена.");
+      return false;
+    }
+  } else if (action === "start-project") {
+    const check = settlementService.canStartProject(entityId, state);
+    if (!check.ok) {
+      ui.notifications.warn(check.reason);
+      return false;
+    }
+  } else {
+    return false;
+  }
+
+  const gm = primaryActiveGM();
+  if (!gm) {
+    ui.notifications.warn("Settlement Manager: сейчас нет активного ГМа, поэтому общее состояние мира нельзя изменить.");
+    return false;
+  }
+
+  const id = makeRequestId("player-action");
+  const response = new Promise((resolve) => {
+    const timer = setTimeout(() => {
+      pending.delete(id);
+      resolve({ ok: false, timedOut: true, reason: "Не удалось синхронизировать действие с миром Foundry." });
+    }, REQUEST_TIMEOUT_MS);
+    pending.set(id, { resolve, timer });
+  });
+
+  game.socket.emit(CHANNEL, {
+    type: "player-action-execute",
+    requestId: id,
+    userId: game.user.id,
+    action,
+    entityId
+  });
+
+  const result = await response;
+  if (result?.timedOut) ui.notifications.warn(result.reason);
+  return Boolean(result?.ok);
 }
 
 export async function requestConstruction(buildingId) {

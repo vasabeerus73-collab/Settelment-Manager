@@ -322,7 +322,13 @@
                       <i class="fa-solid fa-trash"></i>
                     </button>
                   {{else}}
-                    <span class="sm-hint">Только ГМ изменяет состояние просьбы.</span>
+                    {{#if isAvailable}}
+                      <button type="button" data-action="requestStatus" data-request-id="{{id}}" data-status="accepted">
+                        <i class="fa-solid fa-hand"></i> Принять
+                      </button>
+                    {{else}}
+                      <span class="sm-hint">{{statusLabel}}</span>
+                    {{/if}}
                   {{/if}}
                 </footer>
               </article>
@@ -380,11 +386,9 @@
                   <strong>{{reward}}</strong>
                 </div>
 
-                {{#if ../editable}}
-                  {{#if isAvailable}}{{#unless canStart}}
-                    <div class="sm-notice-warning"><i class="fa-solid fa-triangle-exclamation"></i> {{reason}}</div>
-                  {{/unless}}{{/if}}
-                {{/if}}
+                {{#if isAvailable}}{{#unless canStart}}
+                  <div class="sm-notice-warning"><i class="fa-solid fa-triangle-exclamation"></i> {{reason}}</div>
+                {{/unless}}{{/if}}
 
                 <footer class="sm-notice-actions">
                   {{#if ../editable}}
@@ -402,7 +406,13 @@
                       <i class="fa-solid fa-trash"></i>
                     </button>
                   {{else}}
-                    <span class="sm-hint">Проектами управляет ГМ.</span>
+                    {{#if isAvailable}}
+                      <button type="button" class="sm-primary" data-action="startProject" data-project-id="{{id}}" {{#unless canStart}}disabled{{/unless}}>
+                        <i class="fa-solid fa-handshake"></i> Взять проект
+                      </button>
+                    {{else}}
+                      <span class="sm-hint">{{statusLabel}}</span>
+                    {{/if}}
                   {{/if}}
                 </footer>
               </article>

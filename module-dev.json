@@ -2,7 +2,7 @@
   "id": "settlement-manager",
   "title": "Settlement Manager (Dev)",
   "description": "Development build of Settlement Manager for Foundry VTT 13.",
-  "version": "1.0.0-dev.8.2.1",
+  "version": "1.0.0-dev.8.2.2",
   "url": "https://github.com/vasabeerus73-collab/Settelment-Manager/tree/Dev",
   "manifest": "https://raw.githubusercontent.com/vasabeerus73-collab/Settelment-Manager/Dev/module-dev.json",
   "download": "https://github.com/vasabeerus73-collab/Settelment-Manager/releases/download/dev-latest/settlement-manager-dev.zip",

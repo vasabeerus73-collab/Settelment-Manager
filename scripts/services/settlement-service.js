@@ -423,6 +423,21 @@ export class SettlementService {
     return true;
   }
 
+  async acceptRequest(id, { acceptedBy = null } = {}) {
+    if (!requireGM()) return false;
+    const state = getState();
+    const request = state.requests.find((entry) => entry.id === id);
+    if (!request) return false;
+    if (request.status !== "available") {
+      ui.notifications.warn("Эта просьба уже принята или завершена.");
+      return false;
+    }
+    request.status = "accepted";
+    request.acceptedBy = String(acceptedBy ?? "").trim();
+    await setState(state);
+    return true;
+  }
+
   async deleteRequest(id) {
     if (!requireGM()) return false;
     const state = getState();
@@ -466,7 +481,7 @@ export class SettlementService {
     return { ok: true, reason: null };
   }
 
-  async startProject(id) {
+  async startProject(id, { requestedBy = null } = {}) {
     if (!requireGM()) return false;
     const state = getState();
     const check = this.canStartProject(id, state);
@@ -479,7 +494,9 @@ export class SettlementService {
       state.resources[resource] = Math.max(0, toCount(state.resources[resource]) - toCount(amount));
     }
     project.status = "active";
-    pushChronicle(state, { title: `Начат проект: ${project.title}`, text: project.description ?? "", type: "project" });
+    project.startedBy = String(requestedBy ?? "").trim();
+    const initiator = project.startedBy ? ` Взял: ${project.startedBy}.` : "";
+    pushChronicle(state, { title: `Начат проект: ${project.title}`, text: `${project.description ?? ""}${initiator}`.trim(), type: "project" });
     await setState(state);
     return true;
   }

@@ -8,7 +8,7 @@ import {
   SECONDS_PER_DAY
 } from "../core/constants.js";
 import { settlementService, normalizeBuildingState } from "../services/settlement-service.js";
-import { requestConstruction } from "../integrations/socket.js";
+import { requestConstruction, requestPlayerAction } from "../integrations/socket.js";
 import { applyCustomPacks, getContentSnapshot } from "../core/content-registry.js";
 import { getPacks, resetSettlementState, setPacks, setState } from "../core/storage.js";
 import { makeSlug, uniqueId } from "../utils/ids.js";
@@ -513,7 +513,11 @@ export class SettlementApplication extends HandlebarsApplicationMixin(Applicatio
   /* --------------------------- Просьбы и проекты ---------------------------- */
 
   static async onRequestStatus(event, target) {
-    await settlementService.setRequestStatus(target.dataset.requestId, target.dataset.status);
+    if (target.dataset.status === "accepted") {
+      await requestPlayerAction("accept-request", target.dataset.requestId);
+    } else {
+      await settlementService.setRequestStatus(target.dataset.requestId, target.dataset.status);
+    }
     await this.render({ force: true });
   }
 
@@ -557,7 +561,7 @@ export class SettlementApplication extends HandlebarsApplicationMixin(Applicatio
   }
 
   static async onStartProject(event, target) {
-    await settlementService.startProject(target.dataset.projectId);
+    await requestPlayerAction("start-project", target.dataset.projectId);
     await this.render({ force: true });
   }
 
