@@ -62,7 +62,7 @@ for (const file of onDisk) if (!index?.includes(file)) fail(`${file} не пер
 for (const file of (index ?? [])) if (!onDisk.includes(file)) fail(`${file} указан в index.json, но отсутствует`);
 
 const ids = new Set();
-const buildingBonusTypes = new Set(["capacity", "defense", "restHealingPercent", "projectLevel"]);
+const buildingBonusTypes = new Set(["capacity", "defense", "restHealingPercent", "projectLevel", "resourceCapacity"]);
 for (const file of (index ?? [])) {
   const building = parsed.get(path.join(dataDir, "buildings", file));
   if (!building) continue;

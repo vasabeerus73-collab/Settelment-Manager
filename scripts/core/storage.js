@@ -1,5 +1,6 @@
-import { DEFAULT_STATE, MAX_CHRONICLE_ENTRIES, MODULE_ID, RESOURCE_LABELS, STATE_KEY } from "./constants.js";
+import { BUILDINGS, DEFAULT_STATE, MAX_CHRONICLE_ENTRIES, MODULE_ID, RESOURCE_LABELS, STATE_KEY } from "./constants.js";
 import { cloneData, deepMerge, toCount } from "../utils/data.js";
+import { calculateResourceCapacity } from "./building-bonuses.js";
 
 export const PACKS_KEY = "contentPacks";
 
@@ -26,6 +27,10 @@ function mergeState(saved = {}) {
   }
 
   merged.buildings ??= {};
+  const resourceCapacity = calculateResourceCapacity(merged, BUILDINGS);
+  for (const key of Object.keys(merged.resources)) {
+    merged.resources[key] = Math.min(merged.resources[key], resourceCapacity);
+  }
   merged.buildingAccess ??= {};
   merged.blueprints = Array.isArray(merged.blueprints) ? [...new Set(merged.blueprints.map(String))] : [];
   merged.requests = Array.isArray(merged.requests) ? merged.requests : clone(DEFAULT_STATE?.requests ?? []);
@@ -89,7 +94,7 @@ export function getState() {
 }
 
 export async function setState(state) {
-  return game.settings.set(MODULE_ID, STATE_KEY, JSON.stringify(state));
+  return game.settings.set(MODULE_ID, STATE_KEY, JSON.stringify(mergeState(state)));
 }
 
 export function getPacks() {

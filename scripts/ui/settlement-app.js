@@ -20,11 +20,12 @@ const GM_TABS = ["management", "resourceIntake", "dataEditor", "packs"];
 const EDITOR_MODES = ["building", "resource", "blueprint"];
 const DRAFT_LEVEL = { level: 1, durationDays: 3, cost: {}, effects: [] };
 
-function resourceRows(resources) {
+function resourceRows(resources, capacity) {
   return Object.entries(RESOURCE_LABELS).map(([key, label]) => ({
     key,
     label,
     value: toCount(resources?.[key]),
+    capacity: toCount(capacity),
     icon: RESOURCE_ICONS[key] ?? "fa-solid fa-box"
   }));
 }
@@ -288,6 +289,7 @@ export class SettlementApplication extends HandlebarsApplicationMixin(Applicatio
     const effectiveDefense = toCount(state.defense) + buildingBonuses.defenseBonus;
     const editable = Boolean(game.user?.isGM);
     const featureAccess = settlementService.getFeatureAccess(state);
+    const resourceCapacity = settlementService.getResourceCapacity(state);
 
     if (!editable && GM_TABS.includes(this.activeTab)) this.activeTab = "overview";
     if (!editable && this.activeTab === "board" && !featureAccess.board) this.activeTab = "overview";
@@ -352,7 +354,8 @@ export class SettlementApplication extends HandlebarsApplicationMixin(Applicatio
       contentPacks: packs,
       hasCustomPacks: packs.length > 0,
       editor: editable ? this._prepareEditorContext(packs, state) : null,
-      resources: resourceRows(state.resources),
+      resources: resourceRows(state.resources, resourceCapacity),
+      resourceCapacity,
       buildings: buildings.map((building) => ({ ...building, isSelected: building.id === selectedBuilding?.id })),
       selectedBuilding,
       activeConstruction,
@@ -438,7 +441,8 @@ export class SettlementApplication extends HandlebarsApplicationMixin(Applicatio
       capacityBonus: toCount(level.bonuses?.find((bonus) => bonus.type === "capacity")?.value),
       defenseBonus: toCount(level.bonuses?.find((bonus) => bonus.type === "defense")?.value),
       restHealingPercent: toCount(level.bonuses?.find((bonus) => bonus.type === "restHealingPercent")?.value),
-      projectLevelBonus: toCount(level.bonuses?.find((bonus) => bonus.type === "projectLevel")?.value)
+      projectLevelBonus: toCount(level.bonuses?.find((bonus) => bonus.type === "projectLevel")?.value),
+      resourceCapacityBonus: toCount(level.bonuses?.find((bonus) => bonus.type === "resourceCapacity")?.value)
     }));
 
     const blueprintBuildingOptions = snapshotBuildings.map((building) => ({
@@ -738,7 +742,8 @@ export class SettlementApplication extends HandlebarsApplicationMixin(Applicatio
       capacity: "capacity",
       defense: "defense",
       restHealingPercent: "restHealingPercent",
-      projectLevel: "projectLevel"
+      projectLevel: "projectLevel",
+      resourceCapacity: "resourceCapacity"
     };
     const bonuses = Object.entries(bonusFields)
       .map(([type, field]) => ({

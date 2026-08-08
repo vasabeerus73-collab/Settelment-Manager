@@ -72,6 +72,10 @@ export class SettlementService {
     };
   }
 
+  getResourceCapacity(state = getState()) {
+    return this.getBuildingBonuses(state).resourceCapacity;
+  }
+
   getEffectiveData(state = getState()) {
     const buildingBonuses = this.getBuildingBonuses(state);
     return {
@@ -173,9 +177,15 @@ export class SettlementService {
     }
     const state = getState();
     const delta = toCount(amount);
-    state.resources[resource] = toCount(state.resources[resource]) + delta;
+    const current = toCount(state.resources[resource]);
+    const added = Math.min(delta, Math.max(0, this.getResourceCapacity(state) - current));
+    if (added <= 0) {
+      ui.notifications.warn(`${RESOURCE_LABELS[resource] ?? resource}: склад заполнен.`);
+      return false;
+    }
+    state.resources[resource] = current + added;
     await setState(state);
-    ui.notifications.info(`${RESOURCE_LABELS[resource] ?? resource}: +${delta}`);
+    ui.notifications.info(`${RESOURCE_LABELS[resource] ?? resource}: +${added}`);
     return true;
   }
 
@@ -184,6 +194,7 @@ export class SettlementService {
 
     const state = getState();
     const added = [];
+    const resourceCapacity = this.getResourceCapacity(state);
 
     for (const [resource, rawAmount] of Object.entries(resources ?? {})) {
       if (!(resource in RESOURCE_LABELS)) continue;
@@ -191,8 +202,11 @@ export class SettlementService {
       if (delta <= 0) continue;
 
       state.resources ??= {};
-      state.resources[resource] = toCount(state.resources[resource]) + delta;
-      added.push({ resource, delta, label: RESOURCE_LABELS[resource] ?? resource });
+      const current = toCount(state.resources[resource]);
+      const actualDelta = Math.min(delta, Math.max(0, resourceCapacity - current));
+      if (actualDelta <= 0) continue;
+      state.resources[resource] = current + actualDelta;
+      added.push({ resource, delta: actualDelta, label: RESOURCE_LABELS[resource] ?? resource });
     }
 
     if (!added.length) {

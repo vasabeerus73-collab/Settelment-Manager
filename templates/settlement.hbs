@@ -107,7 +107,7 @@
             </div>
             <div class="sm-dashboard-resources">
               {{#each resources}}
-                <div><span><i class="{{icon}}"></i> {{label}}</span><strong>{{value}}</strong></div>
+                <div><span><i class="{{icon}}"></i> {{label}}</span><strong>{{value}} / {{capacity}}</strong></div>
               {{/each}}
             </div>
           </section>
@@ -456,8 +456,8 @@
           {{#each resources}}
             <div class="sm-ui2-tr sm-ui2-resource-cols">
               <div class="sm-ui2-resource-name"><i class="{{icon}}"></i><strong>{{label}}</strong></div>
-              <strong>{{value}}</strong>
-              <input type="number" name="quickResources.{{key}}" min="0" step="1" value="0" />
+              <strong>{{value}} / {{capacity}}</strong>
+              <input type="number" name="quickResources.{{key}}" min="0" max="{{capacity}}" step="1" value="0" />
             </div>
           {{/each}}
         </div>
@@ -486,7 +486,7 @@
             <summary><i class="fa-solid fa-box-open"></i> Точное количество ресурсов</summary>
             <div class="sm-ui2-table sm-ui2-mini-table">
               <div class="sm-ui2-tr sm-ui2-th sm-ui2-resource-edit-cols"><span>Ресурс</span><span>Количество</span></div>
-              {{#each resources}}<div class="sm-ui2-tr sm-ui2-resource-edit-cols"><div class="sm-ui2-resource-name"><i class="{{icon}}"></i><strong>{{label}}</strong></div><input type="number" name="resources.{{key}}" min="0" step="1" value="{{value}}" /></div>{{/each}}
+              {{#each resources}}<div class="sm-ui2-tr sm-ui2-resource-edit-cols"><div class="sm-ui2-resource-name"><i class="{{icon}}"></i><strong>{{label}}</strong></div><input type="number" name="resources.{{key}}" min="0" max="{{capacity}}" step="1" value="{{value}}" /></div>{{/each}}
             </div>
           </details>
 
@@ -693,6 +693,7 @@
                       <label><span>Уровень защиты</span><input type="number" min="0" name="editor.level.{{@index}}.bonus.defense" value="{{defenseBonus}}"></label>
                       <label><span>Лечение при отдыхе, %</span><input type="number" min="0" name="editor.level.{{@index}}.bonus.restHealingPercent" value="{{restHealingPercent}}"></label>
                       <label><span>Уровней за проект</span><input type="number" min="0" name="editor.level.{{@index}}.bonus.projectLevel" value="{{projectLevelBonus}}"></label>
+                      <label><span>Лимит каждого ресурса</span><input type="number" min="0" name="editor.level.{{@index}}.bonus.resourceCapacity" value="{{resourceCapacityBonus}}"></label>
                     </div>
 
                     <label class="sm-stack-field">

@@ -4,15 +4,19 @@ const BONUS_KEYS = {
   capacity: "capacityBonus",
   defense: "defenseBonus",
   restHealingPercent: "restHealingPercent",
-  projectLevel: "projectLevelBonus"
+  projectLevel: "projectLevelBonus",
+  resourceCapacity: "resourceCapacityBonus"
 };
+
+export const BASE_RESOURCE_CAPACITY = 30;
 
 export function calculateBuildingBonuses(state, buildings) {
   const result = {
     capacityBonus: 0,
     defenseBonus: 0,
     restHealingPercent: 0,
-    projectLevelBonus: 0
+    projectLevelBonus: 0,
+    resourceCapacityBonus: 0
   };
 
   for (const definition of Object.values(buildings ?? {})) {
@@ -29,5 +33,10 @@ export function calculateBuildingBonuses(state, buildings) {
   }
 
   result.restHealingMultiplier = 1 + result.restHealingPercent / 100;
+  result.resourceCapacity = BASE_RESOURCE_CAPACITY + result.resourceCapacityBonus;
   return result;
+}
+
+export function calculateResourceCapacity(state, buildings) {
+  return calculateBuildingBonuses(state, buildings).resourceCapacity;
 }
