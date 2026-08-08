@@ -95,6 +95,18 @@ npm run check
 После изменения JavaScript или шаблонов выполните жёсткую перезагрузку клиента
 Foundry (`Ctrl+F5`).
 
+### Dev-канал
+
+Для установки тестовой сборки из ветки `Dev` используйте отдельный манифест:
+
+```text
+https://raw.githubusercontent.com/vasabeerus73-collab/Settelment-Manager/Dev/module-dev.json
+```
+
+Dev-сборка устанавливается под тем же техническим ID `settlement-manager`, поэтому
+она заменяет стабильную сборку, а не устанавливается рядом с ней. Не используйте
+тестовый канал в важных игровых мирах без резервной копии.
+
 Список изменений — в [CHANGELOG.md](CHANGELOG.md), устройство и инварианты —
 в [ARCHITECTURE.md](ARCHITECTURE.md).
 
