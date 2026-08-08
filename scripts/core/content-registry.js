@@ -73,6 +73,12 @@ export function validateBuilding(building, source = "custom") {
     }
     level.cost = cost;
     level.effects = Array.isArray(level.effects) ? level.effects.map((entry) => String(entry)) : [];
+    level.bonuses = Array.isArray(level.bonuses)
+      ? level.bonuses
+        .filter((bonus) => bonus && typeof bonus === "object" && String(bonus.type ?? "").trim())
+        .map((bonus) => ({ type: String(bonus.type).trim(), value: toCount(bonus.value) }))
+        .filter((bonus) => bonus.value > 0)
+      : [];
   }
 
   result.levels.sort((left, right) => Number(left.level) - Number(right.level));

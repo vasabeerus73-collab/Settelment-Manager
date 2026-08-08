@@ -11,6 +11,7 @@ import {
 import { getState, setState } from "../core/storage.js";
 import { cloneData, toCount } from "../utils/data.js";
 import { entryId } from "../utils/ids.js";
+import { calculateBuildingBonuses } from "../core/building-bonuses.js";
 
 function requireGM() {
   if (game.user?.isGM) return true;
@@ -56,6 +57,34 @@ export class SettlementService {
 
   getData() {
     return getState();
+  }
+
+  getBuildingBonuses(state = getState()) {
+    return calculateBuildingBonuses(state, BUILDINGS);
+  }
+
+  getEffectiveData(state = getState()) {
+    const buildingBonuses = this.getBuildingBonuses(state);
+    return {
+      ...cloneData(state),
+      capacity: Math.max(1, toCount(state.capacity, 1) + buildingBonuses.capacityBonus),
+      defense: toCount(state.defense) + buildingBonuses.defenseBonus,
+      buildingBonuses
+    };
+  }
+
+  getRestHealingBonus(state = getState()) {
+    const bonuses = this.getBuildingBonuses(state);
+    return {
+      percent: bonuses.restHealingPercent,
+      multiplier: bonuses.restHealingMultiplier,
+      infirmaryLevel: toCount(state.buildings?.infirmary?.level)
+    };
+  }
+
+  calculateRestHealing(baseAmount, state = getState()) {
+    const amount = Math.max(0, Number(baseAmount) || 0);
+    return Math.floor(amount * this.getRestHealingBonus(state).multiplier);
   }
 
   getBuildings() {
@@ -529,7 +558,9 @@ export class SettlementService {
       return false;
     }
     project.status = "complete";
-    const levelReward = toCount(project.levelReward);
+    const baseLevelReward = toCount(project.levelReward);
+    const projectLevelBonus = this.getBuildingBonuses(state).projectLevelBonus;
+    const levelReward = baseLevelReward + projectLevelBonus;
     state.level = Math.max(1, toCount(state.level, 1) + levelReward);
     pushChronicle(state, {
       title: `Завершён проект: ${project.title}`,

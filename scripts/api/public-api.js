@@ -35,6 +35,10 @@ export const SettlementAPI = {
     return target.render({ force: true });
   },
   getData: () => settlementService.getData(),
+  getEffectiveData: () => settlementService.getEffectiveData(),
+  getBuildingBonuses: () => settlementService.getBuildingBonuses(),
+  getRestHealingBonus: () => settlementService.getRestHealingBonus(),
+  calculateRestHealing: (baseAmount) => settlementService.calculateRestHealing(baseAmount),
   getContent: () => getContentSnapshot(),
   getBuildings: () => settlementService.getBuildings(),
   getBuilding: (id) => settlementService.getBuilding(id),

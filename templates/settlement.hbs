@@ -14,9 +14,9 @@
       </nav>
       <div class="sm-ui2-sidebar-status">
         <div><span>Уровень</span><strong>{{state.level}}</strong></div>
-        <div><span>Жители</span><strong>{{state.population}} / {{state.capacity}}</strong></div>
+        <div><span>Жители</span><strong>{{state.population}} / {{effective.capacity}}</strong></div>
         <div><span>Мораль</span><strong>{{state.morale}}</strong></div>
-        <div><span>Защита</span><strong>{{state.defense}}</strong></div>
+        <div><span>Защита</span><strong>{{effective.defense}}</strong></div>
       </div>
     </aside>
 
@@ -33,7 +33,7 @@
           <div class="sm-dashboard-health">
             <div class="sm-health-card tone-{{dashboard.populationTone}}">
               <span><i class="fa-solid fa-user-group"></i> Население</span>
-              <strong>{{state.population}} / {{state.capacity}}</strong>
+              <strong>{{state.population}} / {{effective.capacity}}</strong>
               <div class="sm-progress sm-progress-pop"><span style="width: {{populationPercent}}%"></span></div>
             </div>
             <div class="sm-health-card tone-{{dashboard.moraleTone}}">
@@ -43,7 +43,7 @@
             </div>
             <div class="sm-health-card">
               <span><i class="fa-solid fa-shield"></i> Защита</span>
-              <strong>{{state.defense}}</strong>
+              <strong>{{effective.defense}}</strong>
               <small>Текущий показатель</small>
             </div>
             <div class="sm-health-card">
@@ -686,6 +686,13 @@
                           <input type="number" min="0" name="editor.level.{{@../index}}.cost.{{id}}" value="{{value}}">
                         </label>
                       {{/each}}
+                    </div>
+
+                    <div class="sm-editor-cost-grid">
+                      <label><span>Вместимость населения</span><input type="number" min="0" name="editor.level.{{@index}}.bonus.capacity" value="{{capacityBonus}}"></label>
+                      <label><span>Уровень защиты</span><input type="number" min="0" name="editor.level.{{@index}}.bonus.defense" value="{{defenseBonus}}"></label>
+                      <label><span>Лечение при отдыхе, %</span><input type="number" min="0" name="editor.level.{{@index}}.bonus.restHealingPercent" value="{{restHealingPercent}}"></label>
+                      <label><span>Уровней за проект</span><input type="number" min="0" name="editor.level.{{@index}}.bonus.projectLevel" value="{{projectLevelBonus}}"></label>
                     </div>
 
                     <label class="sm-stack-field">

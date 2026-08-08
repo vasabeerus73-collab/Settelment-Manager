@@ -62,6 +62,7 @@ for (const file of onDisk) if (!index?.includes(file)) fail(`${file} не пер
 for (const file of (index ?? [])) if (!onDisk.includes(file)) fail(`${file} указан в index.json, но отсутствует`);
 
 const ids = new Set();
+const buildingBonusTypes = new Set(["capacity", "defense", "restHealingPercent", "projectLevel"]);
 for (const file of (index ?? [])) {
   const building = parsed.get(path.join(dataDir, "buildings", file));
   if (!building) continue;
@@ -76,6 +77,11 @@ for (const file of (index ?? [])) {
   for (const level of (building.levels ?? [])) {
     if (!(Number(level.durationDays) >= 1)) fail(`${file} ур.${level.level}: durationDays должен быть >= 1`);
     if (!Array.isArray(level.effects)) fail(`${file} ур.${level.level}: effects должен быть массивом`);
+    if (level.bonuses !== undefined && !Array.isArray(level.bonuses)) fail(`${file} level ${level.level}: bonuses must be an array`);
+    for (const bonus of (level.bonuses ?? [])) {
+      if (!buildingBonusTypes.has(bonus.type)) fail(`${file} level ${level.level}: unknown bonus "${bonus.type}"`);
+      if (!Number.isInteger(bonus.value) || bonus.value <= 0) fail(`${file} level ${level.level}: invalid bonus value ${bonus.value}`);
+    }
     for (const [key, amount] of Object.entries(level.cost ?? {})) {
       if (!resources[key]) fail(`${file} ур.${level.level}: неизвестный ресурс «${key}»`);
       if (!Number.isInteger(amount) || amount < 0) fail(`${file} ур.${level.level}: неверная стоимость ${key}=${amount}`);
