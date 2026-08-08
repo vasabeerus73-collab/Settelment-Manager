@@ -1,18 +1,4 @@
 <div class="settlement-manager">
-  <header class="sm-hero">
-    <div class="sm-crest"><i class="fa-solid fa-tree-city"></i></div>
-    <div class="sm-hero-copy">
-      <div class="sm-title-row"><h2>{{state.name}}</h2></div>
-      <div class="sm-subtitle">Settlement Manager • v{{moduleVersion}}</div>
-    </div>
-    <div class="sm-top-stats">
-      <div class="sm-top-stat"><span>Уровень</span><strong><i class="fa-solid fa-shield-halved"></i> {{state.level}}</strong></div>
-      <div class="sm-top-stat"><span>Население</span><strong><i class="fa-solid fa-user-group"></i> {{state.population}} / {{state.capacity}}</strong></div>
-      <div class="sm-top-stat"><span>Мораль</span><strong><i class="fa-solid fa-face-smile"></i> {{state.morale}} / 100</strong></div>
-      <div class="sm-top-stat"><span>Защита</span><strong><i class="fa-solid fa-shield"></i> {{state.defense}}</strong></div>
-    </div>
-  </header>
-
   <div class="sm-ui2-shell">
     <aside class="sm-ui2-sidebar">
       <div class="sm-ui2-sidebar-title">
@@ -48,12 +34,12 @@
             <div class="sm-health-card tone-{{dashboard.populationTone}}">
               <span><i class="fa-solid fa-user-group"></i> Население</span>
               <strong>{{state.population}} / {{state.capacity}}</strong>
-              <div class="sm-progress"><span style="width: {{populationPercent}}%"></span></div>
+              <div class="sm-progress sm-progress-pop"><span style="width: {{populationPercent}}%"></span></div>
             </div>
             <div class="sm-health-card tone-{{dashboard.moraleTone}}">
               <span><i class="fa-solid fa-face-smile"></i> Мораль</span>
               <strong>{{state.morale}} / 100</strong>
-              <div class="sm-progress"><span style="width: {{moralePercent}}%"></span></div>
+              <div class="sm-progress sm-progress-morale"><span style="width: {{moralePercent}}%"></span></div>
             </div>
             <div class="sm-health-card">
               <span><i class="fa-solid fa-shield"></i> Защита</span>
@@ -104,7 +90,7 @@
                 </div>
                 <span>{{activeConstruction.daysRemaining}} дн.</span>
               </div>
-              <div class="sm-progress"><span style="width: {{activeConstruction.progressPercent}}%"></span></div>
+              <div class="sm-progress sm-progress-build"><span style="width: {{activeConstruction.progressPercent}}%"></span></div>
             {{else}}
               <div class="sm-empty-state sm-empty-compact"><i class="fa-solid fa-circle-check"></i><span>Строительная бригада свободна</span></div>
             {{/if}}

@@ -389,7 +389,7 @@
 .sm-hero{flex:0 0 auto;min-height:84px}
 .sm-tabs{display:none!important}
 
-.sm-ui2-shell{flex:1 1 auto;min-height:0;display:grid;grid-template-columns:220px minmax(0,1fr);border-top:1px solid rgba(255,255,255,.08)}
+.sm-ui2-shell{flex:1 1 auto;min-height:0;display:grid;grid-template-columns:220px minmax(0,1fr)}
 .sm-ui2-sidebar{min-height:0;padding:10px;display:flex;flex-direction:column;gap:10px;border-right:1px solid rgba(255,255,255,.10);background:rgba(5,7,11,.45);overflow:auto}
 .sm-ui2-sidebar-title{display:flex;gap:8px;align-items:center;padding:7px 9px;color:#999;font-size:.76rem;font-weight:700;letter-spacing:.05em;text-transform:uppercase}
 .sm-ui2-nav{display:flex;flex-direction:column;gap:3px}
