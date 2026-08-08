@@ -37,6 +37,7 @@ export const SettlementAPI = {
   getData: () => settlementService.getData(),
   getEffectiveData: () => settlementService.getEffectiveData(),
   getBuildingBonuses: () => settlementService.getBuildingBonuses(),
+  getFeatureAccess: () => settlementService.getFeatureAccess(),
   getRestHealingBonus: () => settlementService.getRestHealingBonus(),
   calculateRestHealing: (baseAmount) => settlementService.calculateRestHealing(baseAmount),
   getContent: () => getContentSnapshot(),

@@ -287,8 +287,11 @@ export class SettlementApplication extends HandlebarsApplicationMixin(Applicatio
     const effectiveCapacity = Math.max(1, toCount(state.capacity, 1) + buildingBonuses.capacityBonus);
     const effectiveDefense = toCount(state.defense) + buildingBonuses.defenseBonus;
     const editable = Boolean(game.user?.isGM);
+    const featureAccess = settlementService.getFeatureAccess(state);
 
     if (!editable && GM_TABS.includes(this.activeTab)) this.activeTab = "overview";
+    if (!editable && this.activeTab === "board" && !featureAccess.board) this.activeTab = "overview";
+    if (!editable && this.activeTab === "chronicle" && !featureAccess.chronicle) this.activeTab = "overview";
     if (!EDITOR_MODES.includes(this.editorMode)) this.editorMode = "building";
 
     const buildings = buildingRows(state, editable);
@@ -317,10 +320,10 @@ export class SettlementApplication extends HandlebarsApplicationMixin(Applicatio
 
     const tabs = [
       { id: "overview", label: "О поселении", icon: "fa-solid fa-house" },
-      { id: "buildings", label: "Постройки", icon: "fa-solid fa-hammer" },
-      { id: "board", label: "Доска", icon: "fa-solid fa-thumbtack" },
-      { id: "chronicle", label: "Летопись", icon: "fa-solid fa-book" }
+      { id: "buildings", label: "Постройки", icon: "fa-solid fa-hammer" }
     ];
+    if (editable || featureAccess.board) tabs.push({ id: "board", label: "Доска", icon: "fa-solid fa-thumbtack" });
+    if (editable || featureAccess.chronicle) tabs.push({ id: "chronicle", label: "Летопись", icon: "fa-solid fa-book" });
     if (editable) {
       tabs.push({ id: "management", label: "Управление", icon: "fa-solid fa-gears" });
       tabs.push({ id: "resourceIntake", label: "Добавить ресурсы", icon: "fa-solid fa-cart-flatbed" });
@@ -334,6 +337,7 @@ export class SettlementApplication extends HandlebarsApplicationMixin(Applicatio
       state,
       effective: { capacity: effectiveCapacity, defense: effectiveDefense },
       buildingBonuses,
+      featureAccess,
       moduleVersion: game.modules.get(MODULE_ID)?.version ?? "",
       editable,
       tabs,

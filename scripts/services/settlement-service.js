@@ -63,6 +63,15 @@ export class SettlementService {
     return calculateBuildingBonuses(state, BUILDINGS);
   }
 
+  getFeatureAccess(state = getState()) {
+    const townHallLevel = toCount(state.buildings?.townhall?.level);
+    return {
+      board: townHallLevel >= 1,
+      chronicle: townHallLevel >= 1,
+      townHallLevel
+    };
+  }
+
   getEffectiveData(state = getState()) {
     const buildingBonuses = this.getBuildingBonuses(state);
     return {
