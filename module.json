@@ -1,11 +1,11 @@
 {
   "id": "settlement-manager",
   "title": "Settlement Manager",
-  "description": "Settlement Manager UI 2.2: notice board for requests/projects and improved building workspace.",
-  "version": "1.0.0-dev.8.2",
+  "description": "Settlement management, buildings, resident requests, projects and shared world state for Foundry VTT 13.",
+  "version": "1.2.0",
   "url": "https://github.com/vasabeerus73-collab/Settelment-Manager",
   "manifest": "https://raw.githubusercontent.com/vasabeerus73-collab/Settelment-Manager/main/module.json",
-  "download": "https://github.com/vasabeerus73-collab/Settelment-Manager/releases/download/v1.0.0-dev.8.2/settlement-manager.zip",
+  "download": "https://github.com/vasabeerus73-collab/Settelment-Manager/releases/download/v1.2.0/settlement-manager.zip",
   "authors": [
     {
       "name": "Guffi"

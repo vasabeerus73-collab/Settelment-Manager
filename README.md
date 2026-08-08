@@ -1,4 +1,4 @@
-# Settlement Manager v1.0.0-dev.8.2
+# Settlement Manager v1.2.0
 
 Модуль управления поселением для Foundry VTT 13.
 
